@@ -1,0 +1,111 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/auth/session";
+import { can } from "@/lib/auth/roles";
+import { clientFormSchema } from "@/lib/validation/client";
+
+function nullIfEmpty(value: string) {
+  return value.trim() === "" ? null : value.trim();
+}
+
+function parseClientForm(formData: FormData) {
+  const raw = {
+    name: String(formData.get("name") ?? ""),
+    slug: String(formData.get("slug") ?? ""),
+    rubro: String(formData.get("rubro") ?? ""),
+    status: String(formData.get("status") ?? "activo"),
+    plan_contratado: String(formData.get("plan_contratado") ?? ""),
+    fecha_inicio: String(formData.get("fecha_inicio") ?? ""),
+    instagram_url: String(formData.get("instagram_url") ?? ""),
+    tiktok_url: String(formData.get("tiktok_url") ?? ""),
+    brand_manual_url: String(formData.get("brand_manual_url") ?? ""),
+    brand_typography: String(formData.get("brand_typography") ?? ""),
+    notes: String(formData.get("notes") ?? ""),
+  };
+  return clientFormSchema.safeParse(raw);
+}
+
+export async function createClientAction(_prevState: unknown, formData: FormData) {
+  const profile = await getCurrentProfile();
+  if (!can(profile?.role, "manageClients")) {
+    return { error: "No tenés permiso para crear clientes." };
+  }
+
+  const parsed = parseClientForm(formData);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+  const v = parsed.data;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("clients")
+    .insert({
+      name: v.name,
+      slug: v.slug,
+      rubro: nullIfEmpty(v.rubro ?? ""),
+      status: v.status,
+      plan_contratado: nullIfEmpty(v.plan_contratado ?? ""),
+      fecha_inicio: nullIfEmpty(v.fecha_inicio ?? ""),
+      instagram_url: nullIfEmpty(v.instagram_url ?? ""),
+      tiktok_url: nullIfEmpty(v.tiktok_url ?? ""),
+      brand_manual_url: nullIfEmpty(v.brand_manual_url ?? ""),
+      brand_typography: nullIfEmpty(v.brand_typography ?? ""),
+      notes: nullIfEmpty(v.notes ?? ""),
+      primary_owner_id: profile!.id,
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    return { error: error.code === "23505" ? "Ya existe un cliente con ese slug." : error.message };
+  }
+
+  // The creator gets automatic access via client_members.
+  await supabase.from("client_members").insert({ client_id: data.id, profile_id: profile!.id });
+
+  revalidatePath("/clients");
+  redirect(`/clients/${data.id}`);
+}
+
+export async function updateClientAction(clientId: string, _prevState: unknown, formData: FormData) {
+  const profile = await getCurrentProfile();
+  if (!can(profile?.role, "manageClients")) {
+    return { error: "No tenés permiso para editar este cliente." };
+  }
+
+  const parsed = parseClientForm(formData);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+  const v = parsed.data;
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("clients")
+    .update({
+      name: v.name,
+      slug: v.slug,
+      rubro: nullIfEmpty(v.rubro ?? ""),
+      status: v.status,
+      plan_contratado: nullIfEmpty(v.plan_contratado ?? ""),
+      fecha_inicio: nullIfEmpty(v.fecha_inicio ?? ""),
+      instagram_url: nullIfEmpty(v.instagram_url ?? ""),
+      tiktok_url: nullIfEmpty(v.tiktok_url ?? ""),
+      brand_manual_url: nullIfEmpty(v.brand_manual_url ?? ""),
+      brand_typography: nullIfEmpty(v.brand_typography ?? ""),
+      notes: nullIfEmpty(v.notes ?? ""),
+    })
+    .eq("id", clientId);
+
+  if (error) {
+    return { error: error.code === "23505" ? "Ya existe un cliente con ese slug." : error.message };
+  }
+
+  revalidatePath("/clients");
+  revalidatePath(`/clients/${clientId}`);
+  return { success: true };
+}
