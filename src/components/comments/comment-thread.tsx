@@ -56,6 +56,11 @@ export function CommentThread({ parent }: { parent: Parent }) {
                     <span className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: es })}
                     </span>
+                    {comment.is_client_visible && currentProfile?.role !== "client" ? (
+                      <span className="rounded border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                        Visible al cliente
+                      </span>
+                    ) : null}
                     {canDelete ? (
                       <button
                         type="button"

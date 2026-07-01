@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { CurrentProfileProvider } from "@/components/layout/current-profile-provider";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -12,6 +13,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     // Supabase not connected yet — render the shell anyway so the UI is
     // reviewable during scaffolding; every data-fetching page handles a
     // missing/failed Supabase call on its own.
+  }
+
+  if (profile?.role === "client") {
+    redirect("/portal");
   }
 
   return (

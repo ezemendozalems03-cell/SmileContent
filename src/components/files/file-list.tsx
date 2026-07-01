@@ -16,7 +16,15 @@ function formatSize(bytes: number | null) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function FileList({ files, parent }: { files: FileRow[]; parent: Parent }) {
+export function FileList({
+  files,
+  parent,
+  readOnly = false,
+}: {
+  files: FileRow[];
+  parent: Parent;
+  readOnly?: boolean;
+}) {
   const invalidateFiles = useInvalidateFiles();
 
   async function handleDownload(file: FileRow) {
@@ -58,9 +66,11 @@ export function FileList({ files, parent }: { files: FileRow[]; parent: Parent }
           <button type="button" onClick={() => handleDownload(file)} className="shrink-0 text-muted-foreground hover:text-foreground">
             <Download className="size-3.5" />
           </button>
-          <button type="button" onClick={() => handleDelete(file)} className="shrink-0 text-muted-foreground hover:text-destructive">
-            <Trash2 className="size-3.5" />
-          </button>
+          {readOnly ? null : (
+            <button type="button" onClick={() => handleDelete(file)} className="shrink-0 text-muted-foreground hover:text-destructive">
+              <Trash2 className="size-3.5" />
+            </button>
+          )}
         </div>
       ))}
     </div>

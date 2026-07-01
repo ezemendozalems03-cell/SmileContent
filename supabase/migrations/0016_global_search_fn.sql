@@ -11,7 +11,7 @@ returns table (
 language sql
 stable
 as $$
-  select * from (
+  select kind, id, client_id, title, subtitle from (
     select 'content_item'::text as kind, ci.id, ci.client_id, ci.titulo as title, c.name as subtitle,
            ci.updated_at as sort_key
     from public.content_items ci

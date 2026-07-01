@@ -10,6 +10,7 @@ export type Format = Database["public"]["Tables"]["formats"]["Row"];
 export type SubFormat = Database["public"]["Tables"]["sub_formats"]["Row"];
 export type StoryType = Database["public"]["Tables"]["story_types"]["Row"];
 export type ContentItem = Database["public"]["Tables"]["content_items"]["Row"];
+export type ContentItemPortal = Database["public"]["Functions"]["get_portal_content_items"]["Returns"][number];
 export type Story = Database["public"]["Tables"]["stories"]["Row"];
 export type Comment = Database["public"]["Tables"]["comments"]["Row"];
 export type FileRow = Database["public"]["Tables"]["files"]["Row"];
@@ -26,6 +27,14 @@ export type ContentItemWithRelations = ContentItem & {
   subpilar?: Pick<Subpillar, "id" | "name"> | null;
   assignee?: Pick<Profile, "id" | "full_name" | "avatar_url"> | null;
   campaign?: Pick<Campaign, "id" | "name"> | null;
+};
+
+export type ContentItemPortalWithRelations = ContentItemPortal & {
+  client?: Pick<Client, "id" | "name" | "logo_url"> | null;
+  formato?: Pick<Format, "id" | "name"> | null;
+  sub_formato?: Pick<SubFormat, "id" | "name"> | null;
+  pilar?: Pick<Pillar, "id" | "name"> | null;
+  subpilar?: Pick<Subpillar, "id" | "name"> | null;
 };
 
 export type StoryWithRelations = Story & {

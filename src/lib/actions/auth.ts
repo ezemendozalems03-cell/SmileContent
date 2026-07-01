@@ -23,7 +23,8 @@ export async function signIn(_prevState: unknown, formData: FormData) {
     return { error: "Email o contraseña incorrectos." };
   }
 
-  redirect("/dashboard");
+  const profile = await getCurrentProfile();
+  redirect(profile?.role === "client" ? "/portal" : "/dashboard");
 }
 
 export async function signOut() {

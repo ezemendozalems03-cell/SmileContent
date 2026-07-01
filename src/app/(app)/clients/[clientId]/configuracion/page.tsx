@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { updateClientAction } from "@/lib/actions/clients";
+import { getCurrentProfile } from "@/lib/auth/session";
+import { can } from "@/lib/auth/roles";
 import { ClientForm } from "@/components/clients/client-form";
 import { PillarsFormatsManager } from "@/components/settings/pillars-formats-manager";
+import { ClientPortalAccess } from "@/components/clients/client-portal-access";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function ClientConfiguracionPage({
@@ -11,6 +14,7 @@ export default async function ClientConfiguracionPage({
   params: Promise<{ clientId: string }>;
 }) {
   const { clientId } = await params;
+  const profile = await getCurrentProfile();
   const supabase = await createClient();
   const { data: client } = await supabase.from("clients").select("*").eq("id", clientId).single();
   if (!client) notFound();
@@ -26,6 +30,19 @@ export default async function ClientConfiguracionPage({
     ]);
 
   const boundAction = updateClientAction.bind(null, clientId);
+
+  let portalUsers: { profile_id: string; full_name: string; email: string }[] = [];
+  if (can(profile?.role, "manageClients")) {
+    const { data: clientMembers } = await supabase
+      .from("client_members")
+      .select("profile_id, profile:profiles(id, full_name, email, role)")
+      .eq("client_id", clientId);
+
+    portalUsers = (clientMembers ?? [])
+      .map((cm) => cm.profile as unknown as { id: string; full_name: string; email: string; role: string } | null)
+      .filter((p): p is { id: string; full_name: string; email: string; role: string } => p?.role === "client")
+      .map((p) => ({ profile_id: p.id, full_name: p.full_name, email: p.email }));
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
@@ -49,6 +66,17 @@ export default async function ClientConfiguracionPage({
           storyTypes={storyTypes ?? []}
         />
       </div>
+
+      {can(profile?.role, "manageClients") ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Acceso del cliente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ClientPortalAccess clientId={clientId} users={portalUsers} />
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }

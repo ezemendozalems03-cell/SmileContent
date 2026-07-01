@@ -623,6 +623,54 @@ export interface Database {
           subtitle: string | null;
         }[];
       };
+      submit_client_approval: {
+        Args: {
+          p_content_item_id: string;
+          p_decision: ApprovalStatus;
+          p_notes?: string | null;
+        };
+        Returns: void;
+      };
+      get_portal_content_items: {
+        Args: { p_content_item_id?: string | null };
+        Returns: {
+          id: string;
+          client_id: string;
+          campaign_id: string | null;
+          titulo: string;
+          descripcion: string | null;
+          formato_id: string | null;
+          sub_formato_id: string | null;
+          pilar_id: string | null;
+          subpilar_id: string | null;
+          tipo_contenido: ContentKind;
+          objetivo: string | null;
+          status: ContentStatus;
+          priority: ContentPriority;
+          assignee_id: string | null;
+          created_by: string | null;
+          fecha_publicacion: string | null;
+          hora_sugerida: string | null;
+          hook: string | null;
+          guion: string | null;
+          copy: string | null;
+          cta: string | null;
+          hashtags: string[];
+          link_drive: string | null;
+          link_canva: string | null;
+          link_capcut: string | null;
+          link_publicacion_final: string | null;
+          vistas: number;
+          likes: number;
+          comentarios_count: number;
+          compartidos: number;
+          guardados: number;
+          consultas_generadas: number;
+          feedback_cliente: string | null;
+          created_at: string;
+          updated_at: string;
+        }[];
+      };
     };
     Enums: {
       user_role: UserRole;
