@@ -103,7 +103,11 @@ export function ContentDetailPanel({
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-wrap items-center gap-2 border-b border-border px-6 py-3">
-        <Select value={item.status} onValueChange={(v) => handleStatusChange(v as ContentStatus)}>
+        <Select
+          items={CONTENT_STATUS_LABELS}
+          value={item.status}
+          onValueChange={(v) => handleStatusChange(v as ContentStatus)}
+        >
           <SelectTrigger size="sm">
             <SelectValue />
           </SelectTrigger>
@@ -116,7 +120,11 @@ export function ContentDetailPanel({
           </SelectContent>
         </Select>
 
-        <Select value={item.priority} onValueChange={(v) => handlePriorityChange(v as ContentPriority)}>
+        <Select
+          items={CONTENT_PRIORITY_LABELS}
+          value={item.priority}
+          onValueChange={(v) => handlePriorityChange(v as ContentPriority)}
+        >
           <SelectTrigger size="sm">
             <SelectValue />
           </SelectTrigger>
@@ -129,7 +137,11 @@ export function ContentDetailPanel({
           </SelectContent>
         </Select>
 
-        <Select value={item.assignee_id ?? UNASSIGNED} onValueChange={handleAssigneeChange}>
+        <Select
+          items={{ [UNASSIGNED]: "Sin responsable", ...Object.fromEntries((profiles ?? []).map((p) => [p.id, p.full_name])) }}
+          value={item.assignee_id ?? UNASSIGNED}
+          onValueChange={handleAssigneeChange}
+        >
           <SelectTrigger size="sm">
             <SelectValue placeholder="Sin responsable" />
           </SelectTrigger>

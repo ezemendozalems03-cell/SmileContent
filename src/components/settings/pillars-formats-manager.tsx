@@ -18,6 +18,7 @@ import {
   createStoryType,
   deleteStoryType,
 } from "@/lib/actions/taxonomy";
+import { usePillarStats } from "@/lib/queries/use-pillar-stats";
 import type { Pillar, Subpillar, Format, SubFormat, StoryType } from "@/lib/types/domain";
 
 function toParentItems(
@@ -25,6 +26,11 @@ function toParentItems(
   childrenByParent: Map<string, { id: string; name: string }[]>,
 ): ParentItem[] {
   return parents.map((p) => ({ id: p.id, name: p.name, children: childrenByParent.get(p.id) ?? [] }));
+}
+
+function pillarBadge(ideaCount: number, scheduledCount: number) {
+  if (!ideaCount && !scheduledCount) return undefined;
+  return `${ideaCount} ideas · ${scheduledCount} programadas`;
 }
 
 export function PillarsFormatsManager({
@@ -51,10 +57,21 @@ export function PillarsFormatsManager({
   const globalStoryTypes = storyTypes.filter((s) => s.client_id === null);
   const ownStoryTypes = clientId ? storyTypes.filter((s) => s.client_id === clientId) : undefined;
 
-  const subpillarsByPillar = new Map<string, { id: string; name: string }[]>();
+  const { data: pillarStats } = usePillarStats(clientId ?? undefined);
+
+  const subpillarsByPillar = new Map<string, { id: string; name: string; badge?: string }[]>();
   for (const sp of subpillars) {
     const list = subpillarsByPillar.get(sp.pillar_id) ?? [];
-    list.push({ id: sp.id, name: sp.name });
+    list.push({
+      id: sp.id,
+      name: sp.name,
+      badge: pillarStats
+        ? pillarBadge(
+            pillarStats.ideaCountBySubpilar.get(sp.id) ?? 0,
+            pillarStats.scheduledCountBySubpilar.get(sp.id) ?? 0,
+          )
+        : undefined,
+    });
     subpillarsByPillar.set(sp.pillar_id, list);
   }
 
@@ -70,9 +87,29 @@ export function PillarsFormatsManager({
       <CardContent className="space-y-6">
         <NestedTaxonomySection
           title="Pilares de contenido"
-          description="Cada publicación se clasifica bajo un pilar (y opcionalmente un subpilar)."
-          globalItems={toParentItems(globalPillars, subpillarsByPillar)}
-          ownItems={ownPillars ? toParentItems(ownPillars, subpillarsByPillar) : undefined}
+          description="Cada publicación se clasifica bajo un pilar (y opcionalmente un subpilar). El badge muestra ideas · publicaciones programadas."
+          globalItems={toParentItems(globalPillars, subpillarsByPillar).map((item) => ({
+            ...item,
+            badge: pillarStats
+              ? pillarBadge(
+                  pillarStats.ideaCountByPilar.get(item.id) ?? 0,
+                  pillarStats.scheduledCountByPilar.get(item.id) ?? 0,
+                )
+              : undefined,
+          }))}
+          ownItems={
+            ownPillars
+              ? toParentItems(ownPillars, subpillarsByPillar).map((item) => ({
+                  ...item,
+                  badge: pillarStats
+                    ? pillarBadge(
+                        pillarStats.ideaCountByPilar.get(item.id) ?? 0,
+                        pillarStats.scheduledCountByPilar.get(item.id) ?? 0,
+                      )
+                    : undefined,
+                }))
+              : undefined
+          }
           createParentAction={createPillar.bind(null, clientId)}
           onDeleteParent={(id) => deletePillar(clientId, id)}
           onDeleteChild={(id) => deleteSubpillar(clientId, id)}

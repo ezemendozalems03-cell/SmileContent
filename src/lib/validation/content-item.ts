@@ -1,11 +1,13 @@
 import { z } from "zod";
 
+// "__none__" is the sentinel value used by "Sin X" Select items app-wide
+// (base-ui Select can't submit a real empty string via a native form field).
 const optionalUuid = z
   .string()
   .trim()
   .optional()
   .or(z.literal(""))
-  .transform((v) => (v ? v : null));
+  .transform((v) => (v && v !== "__none__" ? v : null));
 
 const optionalText = z
   .string()

@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Plus, LayoutGrid, Rows3, CalendarDays } from "lucide-react";
+import { Plus, Upload, LayoutGrid, Rows3, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContentFiltersBar } from "@/components/content/content-filters-bar";
 import { ContentTable } from "@/components/content/content-table";
 import { KanbanBoard } from "@/components/content/kanban/kanban-board";
 import { ContentCalendar } from "@/components/content/calendar/content-calendar";
+import { ImportCsvDialog } from "@/components/content/import-csv-dialog";
 import { useContentItems } from "@/lib/queries/use-content-items";
 import { createDraftContentItem } from "@/lib/actions/content-items";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,7 @@ export function ContentWorkspace({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [creating, setCreating] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
 
   const rawView = searchParams.get("view");
   const view: View = forcedView ?? (rawView === "board" ? "board" : rawView === "calendar" ? "calendar" : "table");
@@ -107,6 +109,10 @@ export function ContentWorkspace({
               ))}
             </div>
           ) : null}
+          <Button size="sm" variant="outline" onClick={() => setImportOpen(true)}>
+            <Upload className="size-4" />
+            Importar CSV
+          </Button>
           <Button size="sm" disabled={!canCreate || creating} onClick={handleCreate}>
             <Plus className="size-4" />
             Nueva publicación
@@ -130,6 +136,8 @@ export function ContentWorkspace({
           <ContentCalendar items={visibleItems} isLoading={isLoading} detailBasePath={detailBasePath} />
         )}
       </div>
+
+      <ImportCsvDialog open={importOpen} onOpenChange={setImportOpen} defaultClientId={clientId} />
     </div>
   );
 }

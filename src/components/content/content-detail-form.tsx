@@ -79,7 +79,12 @@ export function ContentDetailForm({ item }: { item: ContentItemWithRelations }) 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Formato</Label>
-                <Select name="formato_id" value={formatoId} onValueChange={(v) => setFormatoId(v ?? NONE)}>
+                <Select
+                  items={{ [NONE]: "Sin formato", ...Object.fromEntries((taxonomy?.formats ?? []).map((f) => [f.id, f.name])) }}
+                  name="formato_id"
+                  value={formatoId}
+                  onValueChange={(v) => setFormatoId(v ?? NONE)}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Sin formato" />
                   </SelectTrigger>
@@ -95,7 +100,11 @@ export function ContentDetailForm({ item }: { item: ContentItemWithRelations }) 
               </div>
               <div className="space-y-2">
                 <Label>Sub formato</Label>
-                <Select name="sub_formato_id" defaultValue={item.sub_formato_id ?? NONE}>
+                <Select
+                  items={{ [NONE]: "Sin sub formato", ...Object.fromEntries(subFormatOptions.map((sf) => [sf.id, sf.name])) }}
+                  name="sub_formato_id"
+                  defaultValue={item.sub_formato_id ?? NONE}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Sin sub formato" />
                   </SelectTrigger>
@@ -111,7 +120,12 @@ export function ContentDetailForm({ item }: { item: ContentItemWithRelations }) 
               </div>
               <div className="space-y-2">
                 <Label>Pilar</Label>
-                <Select name="pilar_id" value={pilarId} onValueChange={(v) => setPilarId(v ?? NONE)}>
+                <Select
+                  items={{ [NONE]: "Sin pilar", ...Object.fromEntries((taxonomy?.pillars ?? []).map((p) => [p.id, p.name])) }}
+                  name="pilar_id"
+                  value={pilarId}
+                  onValueChange={(v) => setPilarId(v ?? NONE)}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Sin pilar" />
                   </SelectTrigger>
@@ -127,7 +141,11 @@ export function ContentDetailForm({ item }: { item: ContentItemWithRelations }) 
               </div>
               <div className="space-y-2">
                 <Label>Subpilar</Label>
-                <Select name="subpilar_id" defaultValue={item.subpilar_id ?? NONE}>
+                <Select
+                  items={{ [NONE]: "Sin subpilar", ...Object.fromEntries(subpillarOptions.map((sp) => [sp.id, sp.name])) }}
+                  name="subpilar_id"
+                  defaultValue={item.subpilar_id ?? NONE}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Sin subpilar" />
                   </SelectTrigger>
@@ -143,7 +161,7 @@ export function ContentDetailForm({ item }: { item: ContentItemWithRelations }) 
               </div>
               <div className="space-y-2">
                 <Label>Tipo de contenido</Label>
-                <Select name="tipo_contenido" defaultValue={item.tipo_contenido}>
+                <Select items={CONTENT_KIND_LABELS} name="tipo_contenido" defaultValue={item.tipo_contenido}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -273,7 +291,7 @@ export function ContentDetailForm({ item }: { item: ContentItemWithRelations }) 
                 disabled
                 rows={4}
                 value={item.feedback_cliente ?? ""}
-                placeholder="Disponible cuando el portal del cliente esté activo (Etapa 2)."
+                placeholder="El cliente todavía no dejó feedback desde el portal."
               />
             </div>
           </TabsContent>

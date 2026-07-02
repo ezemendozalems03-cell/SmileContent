@@ -17,6 +17,10 @@ export type FileRow = Database["public"]["Tables"]["files"]["Row"];
 export type Notification = Database["public"]["Tables"]["notifications"]["Row"];
 export type Idea = Database["public"]["Tables"]["ideas"]["Row"];
 export type Task = Database["public"]["Tables"]["tasks"]["Row"];
+export type BrandAsset = Database["public"]["Tables"]["brand_assets"]["Row"];
+export type StoryPortal = Database["public"]["Functions"]["get_portal_stories"]["Returns"][number];
+export type ContentGoal = Database["public"]["Tables"]["content_goals"]["Row"];
+export type MonthlyGoalProgress = Database["public"]["Functions"]["monthly_goals_progress"]["Returns"][number];
 
 /** content_items joined with the human-readable labels the UI actually renders. */
 export type ContentItemWithRelations = ContentItem & {
@@ -41,6 +45,15 @@ export type StoryWithRelations = Story & {
   story_type?: Pick<StoryType, "id" | "name"> | null;
   assignee?: Pick<Profile, "id" | "full_name" | "avatar_url"> | null;
   client?: Pick<Client, "id" | "name"> | null;
+};
+
+export type IdeaWithRelations = Idea & {
+  pilar?: Pick<Pillar, "id" | "name"> | null;
+  subpilar?: Pick<Subpillar, "id" | "name"> | null;
+  formato?: Pick<Format, "id" | "name"> | null;
+  sub_formato?: Pick<SubFormat, "id" | "name"> | null;
+  client?: Pick<Client, "id" | "name"> | null;
+  creator?: Pick<Profile, "id" | "full_name" | "avatar_url"> | null;
 };
 
 export type CommentWithAuthor = Comment & {

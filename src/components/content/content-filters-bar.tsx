@@ -74,7 +74,11 @@ export function ContentFiltersBar({ clientId }: { clientId?: string }) {
       </div>
 
       {!clientId ? (
-        <Select value={selectedClient} onValueChange={(v) => setParam("client", v)}>
+        <Select
+          items={{ [ALL]: "Todos los clientes", ...Object.fromEntries((clients ?? []).map((c) => [c.id, c.name])) }}
+          value={selectedClient}
+          onValueChange={(v) => setParam("client", v)}
+        >
           <SelectTrigger size="sm">
             <SelectValue placeholder="Cliente" />
           </SelectTrigger>
@@ -89,7 +93,11 @@ export function ContentFiltersBar({ clientId }: { clientId?: string }) {
         </Select>
       ) : null}
 
-      <Select value={selectedPilar} onValueChange={(v) => setParam("pilar", v)}>
+      <Select
+        items={{ [ALL]: "Todos los pilares", ...Object.fromEntries((taxonomy?.pillars ?? []).map((p) => [p.id, p.name])) }}
+        value={selectedPilar}
+        onValueChange={(v) => setParam("pilar", v)}
+      >
         <SelectTrigger size="sm">
           <SelectValue placeholder="Pilar" />
         </SelectTrigger>
@@ -103,7 +111,11 @@ export function ContentFiltersBar({ clientId }: { clientId?: string }) {
         </SelectContent>
       </Select>
 
-      <Select value={selectedFormato} onValueChange={(v) => setParam("formato", v)}>
+      <Select
+        items={{ [ALL]: "Todos los formatos", ...Object.fromEntries((taxonomy?.formats ?? []).map((f) => [f.id, f.name])) }}
+        value={selectedFormato}
+        onValueChange={(v) => setParam("formato", v)}
+      >
         <SelectTrigger size="sm">
           <SelectValue placeholder="Formato" />
         </SelectTrigger>
@@ -117,7 +129,11 @@ export function ContentFiltersBar({ clientId }: { clientId?: string }) {
         </SelectContent>
       </Select>
 
-      <Select value={selectedEstado} onValueChange={(v) => setParam("estado", v)}>
+      <Select
+        items={{ [ALL]: "Todos los estados", ...CONTENT_STATUS_LABELS }}
+        value={selectedEstado}
+        onValueChange={(v) => setParam("estado", v)}
+      >
         <SelectTrigger size="sm">
           <SelectValue placeholder="Estado" />
         </SelectTrigger>
@@ -131,7 +147,11 @@ export function ContentFiltersBar({ clientId }: { clientId?: string }) {
         </SelectContent>
       </Select>
 
-      <Select value={selectedResponsable} onValueChange={(v) => setParam("responsable", v)}>
+      <Select
+        items={{ [ALL]: "Todos los responsables", ...Object.fromEntries((profiles ?? []).map((p) => [p.id, p.full_name])) }}
+        value={selectedResponsable}
+        onValueChange={(v) => setParam("responsable", v)}
+      >
         <SelectTrigger size="sm">
           <SelectValue placeholder="Responsable" />
         </SelectTrigger>

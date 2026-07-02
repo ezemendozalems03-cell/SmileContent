@@ -44,6 +44,7 @@ export type NotificationType =
   | "approval_requested"
   | "approval_resolved";
 export type StoryStatus = "idea" | "diseno" | "lista" | "programada" | "publicada" | "archivada";
+export type IdeaStatus = "idea" | "en_desarrollo" | "aprobado" | "calendarizado" | "publicado";
 
 export interface Database {
   public: {
@@ -511,9 +512,23 @@ export interface Database {
           title: string;
           description: string | null;
           pilar_id: string | null;
+          subpilar_id: string | null;
+          formato_id: string | null;
+          sub_formato_id: string | null;
+          tipo_contenido: ContentKind;
+          status: IdeaStatus;
+          priority: ContentPriority;
+          hook: string | null;
+          guion: string | null;
+          copy: string | null;
+          cta: string | null;
+          observaciones_internas: string | null;
+          feedback_cliente: string | null;
+          fecha_sugerida: string | null;
           created_by: string | null;
           promoted_content_item_id: string | null;
           created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
@@ -521,10 +536,49 @@ export interface Database {
           title: string;
           description?: string | null;
           pilar_id?: string | null;
+          subpilar_id?: string | null;
+          formato_id?: string | null;
+          sub_formato_id?: string | null;
+          tipo_contenido?: ContentKind;
+          status?: IdeaStatus;
+          priority?: ContentPriority;
+          hook?: string | null;
+          guion?: string | null;
+          copy?: string | null;
+          cta?: string | null;
+          observaciones_internas?: string | null;
+          feedback_cliente?: string | null;
+          fecha_sugerida?: string | null;
           created_by?: string | null;
           promoted_content_item_id?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["ideas"]["Insert"]>;
+        Relationships: [];
+      };
+      content_goals: {
+        Row: {
+          id: string;
+          client_id: string;
+          year: number;
+          month: number;
+          tipo_contenido: ContentKind;
+          formato_id: string | null;
+          target_count: number;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          year: number;
+          month: number;
+          tipo_contenido: ContentKind;
+          formato_id?: string | null;
+          target_count: number;
+          created_by?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["content_goals"]["Insert"]>;
         Relationships: [];
       };
       tasks: {
@@ -594,6 +648,8 @@ export interface Database {
           name: string;
           storage_path: string;
           asset_type: string | null;
+          mime_type: string | null;
+          size_bytes: number | null;
           created_at: string;
         };
         Insert: {
@@ -602,6 +658,8 @@ export interface Database {
           name: string;
           storage_path: string;
           asset_type?: string | null;
+          mime_type?: string | null;
+          size_bytes?: number | null;
         };
         Update: Partial<Database["public"]["Tables"]["brand_assets"]["Insert"]>;
         Relationships: [];
@@ -671,6 +729,50 @@ export interface Database {
           updated_at: string;
         }[];
       };
+      get_portal_stories: {
+        Args: { p_story_id?: string | null };
+        Returns: {
+          id: string;
+          client_id: string;
+          nombre: string;
+          fecha: string;
+          hora: string | null;
+          story_type_id: string | null;
+          objetivo: string | null;
+          status: StoryStatus;
+          assignee_id: string | null;
+          texto: string | null;
+          sticker: string | null;
+          link: string | null;
+          cta: string | null;
+          observacion: string | null;
+          respuesta_esperada: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        }[];
+      };
+      submit_client_story_approval: {
+        Args: {
+          p_story_id: string;
+          p_decision: ApprovalStatus;
+          p_notes?: string | null;
+        };
+        Returns: void;
+      };
+      monthly_goals_progress: {
+        Args: { p_client_id: string; p_year: number; p_month: number };
+        Returns: {
+          tipo_contenido: ContentKind;
+          formato_id: string | null;
+          formato_nombre: string | null;
+          target_count: number;
+          scheduled_count: number;
+          published_count: number;
+          remaining_count: number;
+          pct_complete: number;
+        }[];
+      };
     };
     Enums: {
       user_role: UserRole;
@@ -683,6 +785,7 @@ export interface Database {
       approval_status: ApprovalStatus;
       notification_type: NotificationType;
       story_status: StoryStatus;
+      idea_status: IdeaStatus;
     };
   };
 }

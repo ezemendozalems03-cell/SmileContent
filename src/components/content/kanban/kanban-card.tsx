@@ -40,11 +40,11 @@ export function KanbanCard({
       onClick={() => !isDragging && router.push(`${detailBasePath}/${item.id}`)}
       style={{ transform: CSS.Translate.toString(transform) }}
       className={cn(
-        "cursor-grab space-y-2 rounded-lg border border-border bg-card p-3 text-sm shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing",
+        "cursor-grab space-y-1.5 rounded-lg border border-border bg-card p-2.5 text-sm shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing",
         isDragging && "opacity-50",
       )}
     >
-      <p className="line-clamp-2 font-medium leading-snug">{item.titulo}</p>
+      <p className="line-clamp-2 text-[13px] font-medium leading-snug">{item.titulo}</p>
       <div className="flex flex-wrap items-center gap-1.5">
         {item.formato ? (
           <span className="rounded-full border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">

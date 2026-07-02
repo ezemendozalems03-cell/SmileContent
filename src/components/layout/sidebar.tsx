@@ -7,6 +7,7 @@ import {
   Building2,
   FileText,
   CircleDot,
+  Lightbulb,
   Users,
   Tags,
 } from "lucide-react";
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { href: "/clients", label: "Clientes", icon: Building2 },
   { href: "/content", label: "Contenido", icon: FileText },
   { href: "/stories", label: "Historias", icon: CircleDot },
+  { href: "/ideas", label: "Ideas", icon: Lightbulb },
 ];
 
 const SETTINGS_ITEMS = [

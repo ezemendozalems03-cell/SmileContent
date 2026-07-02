@@ -19,6 +19,7 @@ import { signOut } from "@/lib/actions/auth";
 const NAV_ITEMS = [
   { href: "/portal", label: "Inicio" },
   { href: "/portal/contenido", label: "Contenido" },
+  { href: "/portal/historias", label: "Historias" },
 ];
 
 function initials(name: string) {

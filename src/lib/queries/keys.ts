@@ -9,6 +9,16 @@ export type ContentItemFilters = {
   search?: string;
 };
 
+export type IdeaFilters = {
+  clientId?: string;
+  pilarId?: string;
+  subpilarId?: string;
+  tipoContenido?: string;
+  statuses?: string[];
+  priority?: string;
+  search?: string;
+};
+
 export const queryKeys = {
   contentItems: {
     all: ["content-items"] as const,
@@ -18,6 +28,13 @@ export const queryKeys = {
   stories: {
     all: ["stories"] as const,
     list: (clientId?: string) => ["stories", "list", clientId ?? "all"] as const,
+  },
+  ideas: {
+    all: ["ideas"] as const,
+    list: (filters: IdeaFilters) => ["ideas", "list", filters] as const,
+  },
+  brandAssets: {
+    list: (clientId: string) => ["brand-assets", "list", clientId] as const,
   },
   comments: {
     forContentItem: (contentItemId: string) => ["comments", "content-item", contentItemId] as const,

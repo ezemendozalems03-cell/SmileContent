@@ -6,7 +6,7 @@ import { queryKeys } from "@/lib/queries/keys";
 import type { StoryWithRelations } from "@/lib/types/domain";
 
 const SELECT_WITH_RELATIONS =
-  "*, story_type:story_types(id,name), assignee:profiles(id,full_name,avatar_url), client:clients(id,name)";
+  "*, story_type:story_types(id,name), assignee:profiles!stories_assignee_id_fkey(id,full_name,avatar_url), client:clients(id,name)";
 
 export function useStories(clientId?: string) {
   return useQuery({

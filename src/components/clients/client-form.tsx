@@ -75,7 +75,7 @@ export function ClientForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="status">Estado</Label>
-          <Select name="status" defaultValue={defaultValues?.status ?? "activo"}>
+          <Select items={CLIENT_STATUS_LABELS} name="status" defaultValue={defaultValues?.status ?? "activo"}>
             <SelectTrigger id="status" className="w-full">
               <SelectValue />
             </SelectTrigger>

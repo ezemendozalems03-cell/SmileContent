@@ -28,7 +28,7 @@ export function getContentColumns({
       accessorKey: "titulo",
       header: "Titulo",
       cell: ({ row }) => (
-        <div className="max-w-72 truncate font-medium">{row.original.titulo}</div>
+        <div className="max-w-72 truncate text-sm font-semibold text-foreground">{row.original.titulo}</div>
       ),
     },
   ];
@@ -38,7 +38,7 @@ export function getContentColumns({
       id: "client",
       header: "Cliente",
       cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">{row.original.client?.name ?? "—"}</span>
+        <span className="text-sm text-muted-foreground/80">{row.original.client?.name ?? "—"}</span>
       ),
     });
   }
@@ -48,14 +48,14 @@ export function getContentColumns({
       id: "formato",
       header: "Formato",
       cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">{row.original.formato?.name ?? "—"}</span>
+        <span className="text-sm text-muted-foreground/80">{row.original.formato?.name ?? "—"}</span>
       ),
     },
     {
       id: "pilar",
       header: "Pilar",
       cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">{row.original.pilar?.name ?? "—"}</span>
+        <span className="text-sm text-muted-foreground/80">{row.original.pilar?.name ?? "—"}</span>
       ),
     },
     {
@@ -82,7 +82,7 @@ export function getContentColumns({
       accessorKey: "fecha_publicacion",
       header: "Fecha",
       cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm text-muted-foreground/80 tabular-nums">
           {row.original.fecha_publicacion ?? "—"}
         </span>
       ),
@@ -92,7 +92,7 @@ export function getContentColumns({
       header: "Responsable",
       cell: ({ row }) => {
         const assignee = row.original.assignee;
-        if (!assignee) return <span className="text-sm text-muted-foreground">—</span>;
+        if (!assignee) return <span className="text-sm text-muted-foreground/80">—</span>;
         return (
           <div className="flex items-center gap-1.5">
             <Avatar size="sm">
@@ -106,11 +106,11 @@ export function getContentColumns({
     },
     {
       accessorKey: "vistas",
-      header: "Vistas",
+      header: () => <div className="text-right">Vistas</div>,
       cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">
+        <div className="text-right text-sm font-medium tabular-nums text-foreground">
           {row.original.vistas.toLocaleString("es-AR")}
-        </span>
+        </div>
       ),
     },
   );

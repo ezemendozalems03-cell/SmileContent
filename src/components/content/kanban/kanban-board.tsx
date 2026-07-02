@@ -71,9 +71,9 @@ export function KanbanBoard({
 
   if (isLoading) {
     return (
-      <div className="flex gap-3 overflow-x-auto p-4">
+      <div className="flex gap-2 overflow-x-auto p-4">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-80 w-72 shrink-0" />
+          <Skeleton key={i} className="h-80 w-56 shrink-0" />
         ))}
       </div>
     );
@@ -81,7 +81,7 @@ export function KanbanBoard({
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className="flex h-full gap-3 overflow-x-auto p-4">
+      <div className="flex h-full gap-2 overflow-x-auto p-4">
         {CONTENT_STATUS_ORDER.map((status) => (
           <KanbanColumn
             key={status}

@@ -69,7 +69,11 @@ export function StoryForm({
           </div>
           <div className="space-y-2">
             <Label>Tipo de historia</Label>
-            <Select name="story_type_id" defaultValue={story?.story_type_id ?? NONE}>
+            <Select
+              items={{ [NONE]: "Sin tipo", ...Object.fromEntries((taxonomy?.storyTypes ?? []).map((t) => [t.id, t.name])) }}
+              name="story_type_id"
+              defaultValue={story?.story_type_id ?? NONE}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Sin tipo" />
               </SelectTrigger>
@@ -85,7 +89,7 @@ export function StoryForm({
           </div>
           <div className="space-y-2">
             <Label>Estado</Label>
-            <Select name="status" defaultValue={story?.status ?? "idea"}>
+            <Select items={STORY_STATUS_LABELS} name="status" defaultValue={story?.status ?? "idea"}>
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -100,7 +104,11 @@ export function StoryForm({
           </div>
           <div className="space-y-2 sm:col-span-2">
             <Label>Responsable</Label>
-            <Select name="assignee_id" defaultValue={story?.assignee_id ?? NONE}>
+            <Select
+              items={{ [NONE]: "Sin responsable", ...Object.fromEntries((profiles ?? []).map((p) => [p.id, p.full_name])) }}
+              name="assignee_id"
+              defaultValue={story?.assignee_id ?? NONE}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Sin responsable" />
               </SelectTrigger>

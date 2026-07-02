@@ -1,4 +1,4 @@
-import type { ContentStatus } from "@/lib/types/database.types";
+import type { ContentStatus, StoryStatus } from "@/lib/types/database.types";
 
 export const CONTENT_STATUS_ORDER: ContentStatus[] = [
   "idea",
@@ -86,6 +86,8 @@ export const CLIENT_STATUS_COLORS: Record<string, string> = {
   finalizado: "bg-zinc-500/15 text-zinc-400 border-zinc-500/30",
   prospecto: "bg-sky-500/15 text-sky-300 border-sky-500/30",
 };
+
+export const STORY_STATUS_ORDER: StoryStatus[] = ["idea", "diseno", "lista", "programada", "publicada", "archivada"];
 
 export const STORY_STATUS_LABELS = {
   idea: "Idea",

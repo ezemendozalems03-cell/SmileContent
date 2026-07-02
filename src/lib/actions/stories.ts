@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { storyFormSchema } from "@/lib/validation/story";
+import type { StoryStatus } from "@/lib/types/database.types";
 
 export async function createStory(clientId: string, _prevState: unknown, formData: FormData) {
   const parsed = storyFormSchema.safeParse({
@@ -61,6 +62,13 @@ export async function updateStory(id: string, _prevState: unknown, formData: For
 export async function deleteStory(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("stories").delete().eq("id", id);
+  if (error) return { error: error.message };
+  return { success: true };
+}
+
+export async function updateStoryStatus(id: string, status: StoryStatus) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("stories").update({ status }).eq("id", id);
   if (error) return { error: error.message };
   return { success: true };
 }

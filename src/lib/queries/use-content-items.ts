@@ -7,7 +7,7 @@ import type { ContentItemWithRelations } from "@/lib/types/domain";
 import type { ContentStatus } from "@/lib/types/database.types";
 
 const SELECT_WITH_RELATIONS =
-  "*, client:clients(id,name,logo_url), formato:formats(id,name), sub_formato:sub_formats(id,name), pilar:pillars(id,name), subpilar:subpillars(id,name), assignee:profiles(id,full_name,avatar_url)";
+  "*, client:clients(id,name,logo_url), formato:formats(id,name), sub_formato:sub_formats(id,name), pilar:pillars(id,name), subpilar:subpillars(id,name), assignee:profiles!content_items_assignee_id_fkey(id,full_name,avatar_url)";
 
 export function useContentItems(filters: ContentItemFilters) {
   return useQuery({

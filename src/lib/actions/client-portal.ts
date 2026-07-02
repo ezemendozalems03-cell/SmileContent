@@ -86,3 +86,22 @@ export async function submitApproval(
   revalidatePath(`/portal/contenido/${contentItemId}`);
   return { success: true };
 }
+
+export async function submitStoryApproval(
+  storyId: string,
+  decision: Extract<ApprovalStatus, "approved" | "changes_requested">,
+  notes?: string,
+) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("submit_client_story_approval", {
+    p_story_id: storyId,
+    p_decision: decision,
+    p_notes: notes?.trim() || null,
+  });
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/portal");
+  revalidatePath(`/portal/historias/${storyId}`);
+  return { success: true };
+}

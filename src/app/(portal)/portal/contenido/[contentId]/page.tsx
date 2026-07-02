@@ -55,11 +55,11 @@ export default async function PortalContentDetailPage({
         </div>
       ) : null}
 
-      {canDecide ? <ApprovalActionBar contentItemId={item.id} /> : null}
+      {canDecide ? <ApprovalActionBar parent={{ contentItemId: item.id }} /> : null}
 
       <div className="space-y-2">
         <p className="text-sm font-medium">Archivos</p>
-        <ClientFilesPanel contentItemId={item.id} />
+        <ClientFilesPanel parent={{ contentItemId: item.id }} />
       </div>
 
       <div className="space-y-2">

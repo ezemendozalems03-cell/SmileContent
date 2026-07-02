@@ -7,13 +7,16 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 type ActionState = { error?: string; success?: boolean } | undefined;
-type Child = { id: string; name: string };
-export type ParentItem = { id: string; name: string; children: Child[] };
+type Child = { id: string; name: string; badge?: string };
+export type ParentItem = { id: string; name: string; children: Child[]; badge?: string };
 
 function ChildRow({ child, onDelete }: { child: Child; onDelete: (id: string) => void }) {
   return (
     <div className="flex items-center justify-between rounded-md px-2 py-1 text-sm hover:bg-accent/40">
-      <span className="text-muted-foreground">{child.name}</span>
+      <span className="flex items-center gap-1.5 text-muted-foreground">
+        {child.name}
+        {child.badge ? <span className="text-[10px] text-muted-foreground/70">{child.badge}</span> : null}
+      </span>
       <button
         type="button"
         onClick={() => onDelete(child.id)}
@@ -74,6 +77,9 @@ function ParentRow({
           {item.name}
           {item.children.length > 0 ? (
             <span className="text-xs font-normal text-muted-foreground">({item.children.length})</span>
+          ) : null}
+          {item.badge ? (
+            <span className="text-[10px] font-normal text-muted-foreground/70">{item.badge}</span>
           ) : null}
         </button>
         <button

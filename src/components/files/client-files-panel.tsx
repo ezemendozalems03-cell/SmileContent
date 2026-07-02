@@ -7,15 +7,17 @@ import type { FileKind } from "@/lib/types/database.types";
 
 const KINDS: FileKind[] = ["archivo_final", "miniatura"];
 
-export function ClientFilesPanel({ contentItemId }: { contentItemId: string }) {
-  const { data: files } = useFiles({ contentItemId });
+type Parent = { contentItemId: string } | { storyId: string };
+
+export function ClientFilesPanel({ parent }: { parent: Parent }) {
+  const { data: files } = useFiles(parent);
 
   return (
     <div className="space-y-5">
       {KINDS.map((kind) => (
         <div key={kind} className="space-y-2">
           <p className="text-sm font-medium">{FILE_KIND_LABELS[kind]}</p>
-          <FileList files={(files ?? []).filter((f) => f.kind === kind)} parent={{ contentItemId }} readOnly />
+          <FileList files={(files ?? []).filter((f) => f.kind === kind)} parent={parent} readOnly />
         </div>
       ))}
     </div>

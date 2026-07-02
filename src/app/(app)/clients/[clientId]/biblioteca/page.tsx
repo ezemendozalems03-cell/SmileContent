@@ -1,14 +1,17 @@
-import { Library } from "lucide-react";
-import { EmptyState } from "@/components/shared/empty-state";
+import { Suspense } from "react";
+import { BrandLibraryWorkspace } from "@/components/brand-assets/brand-library-workspace";
 
-export default function ClientBibliotecaPage() {
+export default async function ClientBibliotecaPage({
+  params,
+}: {
+  params: Promise<{ clientId: string }>;
+}) {
+  const { clientId } = await params;
   return (
     <div className="p-6">
-      <EmptyState
-        icon={Library}
-        title="Biblioteca de marca"
-        description="Logos, manual de marca, fotos, videos y plantillas. Disponible en la Etapa 2."
-      />
+      <Suspense>
+        <BrandLibraryWorkspace clientId={clientId} />
+      </Suspense>
     </div>
   );
 }

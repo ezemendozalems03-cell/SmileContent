@@ -56,7 +56,7 @@ export function TeamMemberRow({ profile, isSelf }: { profile: Profile; isSelf: b
         </p>
         <p className="truncate text-xs text-muted-foreground">{profile.email}</p>
       </div>
-      <Select value={role} onValueChange={handleRoleChange} disabled={isSelf}>
+      <Select items={ROLE_LABELS} value={role} onValueChange={handleRoleChange} disabled={isSelf}>
         <SelectTrigger size="sm" className="w-40">
           <SelectValue />
         </SelectTrigger>

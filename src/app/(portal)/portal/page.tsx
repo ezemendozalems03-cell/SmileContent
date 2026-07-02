@@ -4,16 +4,45 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { CONTENT_STATUS_LABELS, CONTENT_STATUS_COLORS } from "@/lib/constants/pipeline-status";
+import {
+  CONTENT_STATUS_LABELS,
+  CONTENT_STATUS_COLORS,
+  STORY_STATUS_LABELS,
+  STORY_STATUS_COLORS,
+} from "@/lib/constants/pipeline-status";
 
-const PENDING_STATUSES = new Set(["enviado_al_cliente", "correcciones"]);
+const PENDING_CONTENT_STATUSES = new Set(["enviado_al_cliente", "correcciones"]);
 
 export default async function PortalHomePage() {
   const profile = await getCurrentProfile();
 
   const supabase = await createClient();
-  const { data: items } = await supabase.rpc("get_portal_content_items");
-  const pending = (items ?? []).filter((item) => PENDING_STATUSES.has(item.status));
+  const [{ data: contentItems }, { data: stories }] = await Promise.all([
+    supabase.rpc("get_portal_content_items"),
+    supabase.rpc("get_portal_stories"),
+  ]);
+
+  const pendingContent = (contentItems ?? [])
+    .filter((item) => PENDING_CONTENT_STATUSES.has(item.status))
+    .map((item) => ({
+      id: item.id,
+      href: `/portal/contenido/${item.id}`,
+      title: item.titulo,
+      label: CONTENT_STATUS_LABELS[item.status],
+      colorClass: CONTENT_STATUS_COLORS[item.status],
+    }));
+
+  const pendingStories = (stories ?? [])
+    .filter((item) => item.status === "lista")
+    .map((item) => ({
+      id: item.id,
+      href: `/portal/historias/${item.id}`,
+      title: item.nombre,
+      label: STORY_STATUS_LABELS[item.status],
+      colorClass: STORY_STATUS_COLORS[item.status],
+    }));
+
+  const pending = [...pendingContent, ...pendingStories];
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
@@ -22,16 +51,16 @@ export default async function PortalHomePage() {
         <p className="mt-1 text-sm text-muted-foreground">Esto es lo que está esperando tu revisión.</p>
       </div>
 
-      {pending && pending.length > 0 ? (
+      {pending.length > 0 ? (
         <div className="space-y-2">
           {pending.map((item) => (
             <Link
               key={item.id}
-              href={`/portal/contenido/${item.id}`}
+              href={item.href}
               className="flex items-center gap-3 rounded-lg border border-border px-4 py-3 text-sm transition-colors hover:bg-accent/40"
             >
-              <span className="flex-1 font-medium">{item.titulo}</span>
-              <StatusBadge label={CONTENT_STATUS_LABELS[item.status]} colorClass={CONTENT_STATUS_COLORS[item.status]} />
+              <span className="flex-1 font-medium">{item.title}</span>
+              <StatusBadge label={item.label} colorClass={item.colorClass} />
             </Link>
           ))}
         </div>
