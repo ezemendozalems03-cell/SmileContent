@@ -4,15 +4,24 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Upload, Rows3, CalendarRange, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { StoriesList } from "@/components/stories/stories-list";
 import { StoriesDailyCalendar } from "@/components/stories/stories-daily-calendar";
 import { StoryKanbanBoard } from "@/components/stories/story-kanban-board";
 import { StoryDetailSheet } from "@/components/stories/story-detail-sheet";
 import { ImportStoriesCsvDialog } from "@/components/stories/import-stories-csv-dialog";
 import { useStories } from "@/lib/queries/use-stories";
+import { useClientsList } from "@/lib/queries/use-clients";
 import { cn } from "@/lib/utils";
 
 type View = "list" | "daily" | "board";
+const ALL = "__all__";
 
 export function StoriesWorkspace({ clientId, title }: { clientId?: string; title?: string }) {
   const router = useRouter();
@@ -21,9 +30,18 @@ export function StoriesWorkspace({ clientId, title }: { clientId?: string; title
   const [creating, setCreating] = useState(false);
   const [importing, setImporting] = useState(false);
 
+  // On the global (unscoped) /stories route, let the user pick a client via
+  // ?client= so "Nueva historia"/Importar CSV/Tablero become usable there too
+  // — otherwise those actions were only ever reachable from a client's own
+  // Historias tab, and this page had no way to create anything from itself.
+  const filterClientId = clientId ? undefined : searchParams.get("client") || undefined;
+  const effectiveClientId = clientId ?? filterClientId;
+  const { data: clients } = useClientsList();
+
   const rawView = searchParams.get("view");
-  const view: View = !clientId ? "list" : rawView === "list" ? "list" : rawView === "board" ? "board" : "daily";
-  const { data: stories, isLoading } = useStories(clientId);
+  const view: View =
+    !effectiveClientId ? "list" : rawView === "list" ? "list" : rawView === "board" ? "board" : "daily";
+  const { data: stories, isLoading } = useStories(effectiveClientId);
 
   function setView(next: View) {
     const params = new URLSearchParams(searchParams.toString());
@@ -32,15 +50,41 @@ export function StoriesWorkspace({ clientId, title }: { clientId?: string; title
     router.replace(`?${params.toString()}`, { scroll: false });
   }
 
+  function setClientFilter(value: string | null) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value && value !== ALL) params.set("client", value);
+    else params.delete("client");
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }
+
   const selectedStory = stories?.find((s) => s.id === selectedStoryId);
-  const sheetClientId = clientId ?? selectedStory?.client_id ?? "";
+  const sheetClientId = effectiveClientId ?? selectedStory?.client_id ?? "";
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between px-6 pt-5 pb-3">
         <h1 className="text-xl font-semibold tracking-tight">{title ?? "Historias"}</h1>
         <div className="flex items-center gap-2">
-          {clientId ? (
+          {!clientId ? (
+            <Select
+              items={{ [ALL]: "Todos los clientes", ...Object.fromEntries((clients ?? []).map((c) => [c.id, c.name])) }}
+              value={filterClientId ?? ALL}
+              onValueChange={(v) => setClientFilter(v ?? null)}
+            >
+              <SelectTrigger size="sm">
+                <SelectValue placeholder="Cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>Todos los clientes</SelectItem>
+                {clients?.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : null}
+          {effectiveClientId ? (
             <div className="flex items-center rounded-lg border border-border p-0.5">
               <button
                 type="button"
@@ -77,13 +121,13 @@ export function StoriesWorkspace({ clientId, title }: { clientId?: string; title
               </button>
             </div>
           ) : null}
-          {clientId ? (
+          {effectiveClientId ? (
             <Button size="sm" variant="outline" onClick={() => setImporting(true)}>
               <Upload className="size-4" />
               Importar CSV
             </Button>
           ) : null}
-          {clientId ? (
+          {effectiveClientId ? (
             <Button size="sm" onClick={() => setCreating(true)}>
               <Plus className="size-4" />
               Nueva historia
@@ -98,7 +142,7 @@ export function StoriesWorkspace({ clientId, title }: { clientId?: string; title
             stories={stories ?? []}
             isLoading={isLoading}
             onSelect={setSelectedStoryId}
-            showClient={!clientId}
+            showClient={!effectiveClientId}
           />
         ) : view === "board" ? (
           <StoryKanbanBoard
@@ -123,11 +167,11 @@ export function StoriesWorkspace({ clientId, title }: { clientId?: string; title
           onOpenChange={(open) => !open && setSelectedStoryId(null)}
         />
       ) : null}
-      {clientId ? (
-        <StoryDetailSheet clientId={clientId} open={creating} onOpenChange={setCreating} />
+      {effectiveClientId ? (
+        <StoryDetailSheet clientId={effectiveClientId} open={creating} onOpenChange={setCreating} />
       ) : null}
-      {clientId ? (
-        <ImportStoriesCsvDialog open={importing} onOpenChange={setImporting} defaultClientId={clientId} />
+      {effectiveClientId ? (
+        <ImportStoriesCsvDialog open={importing} onOpenChange={setImporting} defaultClientId={effectiveClientId} />
       ) : null}
     </div>
   );
