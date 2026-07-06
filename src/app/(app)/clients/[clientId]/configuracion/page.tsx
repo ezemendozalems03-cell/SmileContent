@@ -20,14 +20,21 @@ export default async function ClientConfiguracionPage({
   if (!client) notFound();
 
   const scopeFilter = `client_id.is.null,client_id.eq.${clientId}`;
-  const [{ data: pillars }, { data: subpillars }, { data: formats }, { data: subFormats }, { data: storyTypes }] =
-    await Promise.all([
-      supabase.from("pillars").select("*").or(scopeFilter).order("sort_order"),
-      supabase.from("subpillars").select("*").order("sort_order"),
-      supabase.from("formats").select("*").or(scopeFilter).order("sort_order"),
-      supabase.from("sub_formats").select("*").order("sort_order"),
-      supabase.from("story_types").select("*").or(scopeFilter).order("sort_order"),
-    ]);
+  const [
+    { data: pillars },
+    { data: subpillars },
+    { data: formats },
+    { data: subFormats },
+    { data: storyTypes },
+    { data: objectives },
+  ] = await Promise.all([
+    supabase.from("pillars").select("*").or(scopeFilter).order("sort_order"),
+    supabase.from("subpillars").select("*").order("sort_order"),
+    supabase.from("formats").select("*").or(scopeFilter).order("sort_order"),
+    supabase.from("sub_formats").select("*").order("sort_order"),
+    supabase.from("story_types").select("*").or(scopeFilter).order("sort_order"),
+    supabase.from("content_objectives").select("*").or(scopeFilter).order("sort_order"),
+  ]);
 
   const boundAction = updateClientAction.bind(null, clientId);
 
@@ -64,6 +71,7 @@ export default async function ClientConfiguracionPage({
           formats={formats ?? []}
           subFormats={subFormats ?? []}
           storyTypes={storyTypes ?? []}
+          objectives={objectives ?? []}
         />
       </div>
 

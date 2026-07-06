@@ -8,7 +8,9 @@ import {
   contentItemLinksSchema,
   contentItemMetricsSchema,
   contentItemNotesSchema,
+  contentItemInlinePatchSchema,
 } from "@/lib/validation/content-item";
+import { z } from "zod";
 import type { ContentPriority, ContentStatus } from "@/lib/types/database.types";
 
 export async function createDraftContentItem(clientId: string) {
@@ -57,6 +59,32 @@ export async function updateContentItemAssignee(id: string, assigneeId: string |
     .from("content_items")
     .update({ assignee_id: assigneeId })
     .eq("id", id);
+  if (error) return { error: error.message };
+  return { success: true };
+}
+
+/** Edición celda-a-celda desde la tabla (estado, formato, pilar, objetivo…). */
+export async function updateContentItemInline(
+  id: string,
+  patch: z.input<typeof contentItemInlinePatchSchema>,
+) {
+  const parsed = contentItemInlinePatchSchema.safeParse(patch);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Datos invalidos." };
+  }
+
+  const update: Partial<z.output<typeof contentItemInlinePatchSchema>> = {};
+  for (const [key, value] of Object.entries(parsed.data)) {
+    if (value !== undefined) (update as Record<string, unknown>)[key] = value;
+  }
+  // Al cambiar el padre, el hijo deja de ser válido salvo que venga en el patch.
+  if ("formato_id" in update && !("sub_formato_id" in update)) update.sub_formato_id = null;
+  if ("pilar_id" in update && !("subpilar_id" in update)) update.subpilar_id = null;
+
+  if (Object.keys(update).length === 0) return { success: true };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("content_items").update(update).eq("id", id);
   if (error) return { error: error.message };
   return { success: true };
 }

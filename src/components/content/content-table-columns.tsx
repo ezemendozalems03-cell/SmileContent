@@ -1,12 +1,16 @@
+import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
+import { ExternalLink } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { StatusBadge } from "@/components/shared/status-badge";
 import {
-  CONTENT_STATUS_COLORS,
-  CONTENT_STATUS_LABELS,
-  CONTENT_PRIORITY_COLORS,
-  CONTENT_PRIORITY_LABELS,
-} from "@/lib/constants/pipeline-status";
+  StatusCell,
+  PriorityCell,
+  FormatoCell,
+  SubFormatoCell,
+  PilarCell,
+  SubpilarCell,
+  ObjetivoCell,
+} from "@/components/content/inline-cells";
 import type { ContentItemWithRelations } from "@/lib/types/domain";
 
 function initials(name: string) {
@@ -20,15 +24,23 @@ function initials(name: string) {
 
 export function getContentColumns({
   showClient,
+  basePath,
 }: {
   showClient: boolean;
+  basePath: string;
 }): ColumnDef<ContentItemWithRelations>[] {
   const columns: ColumnDef<ContentItemWithRelations>[] = [
     {
       accessorKey: "titulo",
-      header: "Titulo",
+      header: "Nombre",
       cell: ({ row }) => (
-        <div className="max-w-72 truncate text-sm font-semibold text-foreground">{row.original.titulo}</div>
+        <Link
+          href={`${basePath}/${row.original.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="block max-w-32 truncate text-[11px] font-semibold text-foreground hover:underline"
+        >
+          {row.original.titulo}
+        </Link>
       ),
     },
   ];
@@ -45,38 +57,39 @@ export function getContentColumns({
 
   columns.push(
     {
+      accessorKey: "status",
+      header: "Estado",
+      cell: ({ row }) => <StatusCell item={row.original} />,
+    },
+    {
       id: "formato",
       header: "Formato",
-      cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground/80">{row.original.formato?.name ?? "—"}</span>
-      ),
+      cell: ({ row }) => <FormatoCell item={row.original} />,
+    },
+    {
+      id: "sub_formato",
+      header: "Sub formato",
+      cell: ({ row }) => <SubFormatoCell item={row.original} />,
+    },
+    {
+      id: "objetivo",
+      header: "Tipo de contenido",
+      cell: ({ row }) => <ObjetivoCell item={row.original} />,
     },
     {
       id: "pilar",
       header: "Pilar",
-      cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground/80">{row.original.pilar?.name ?? "—"}</span>
-      ),
+      cell: ({ row }) => <PilarCell item={row.original} />,
     },
     {
-      accessorKey: "status",
-      header: "Estado",
-      cell: ({ row }) => (
-        <StatusBadge
-          label={CONTENT_STATUS_LABELS[row.original.status]}
-          colorClass={CONTENT_STATUS_COLORS[row.original.status]}
-        />
-      ),
+      id: "subpilar",
+      header: "Sub pilar",
+      cell: ({ row }) => <SubpilarCell item={row.original} />,
     },
     {
       accessorKey: "priority",
       header: "Prioridad",
-      cell: ({ row }) => (
-        <StatusBadge
-          label={CONTENT_PRIORITY_LABELS[row.original.priority]}
-          colorClass={CONTENT_PRIORITY_COLORS[row.original.priority]}
-        />
-      ),
+      cell: ({ row }) => <PriorityCell item={row.original} />,
     },
     {
       accessorKey: "fecha_publicacion",
@@ -85,6 +98,39 @@ export function getContentColumns({
         <span className="text-sm text-muted-foreground/80 tabular-nums">
           {row.original.fecha_publicacion ?? "—"}
         </span>
+      ),
+    },
+    {
+      id: "enlace",
+      header: "Enlace",
+      cell: ({ row }) => {
+        const link =
+          row.original.link_publicacion_final ??
+          row.original.link_drive ??
+          row.original.link_canva ??
+          row.original.link_capcut;
+        if (!link) return <span className="px-1 text-xs text-muted-foreground/60">—</span>;
+        return (
+          <a
+            href={link}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+          >
+            <ExternalLink className="size-3.5" />
+            Abrir
+          </a>
+        );
+      },
+    },
+    {
+      accessorKey: "vistas",
+      header: () => <div className="text-right">Vistas</div>,
+      cell: ({ row }) => (
+        <div className="text-right text-sm font-medium tabular-nums text-foreground">
+          {row.original.vistas.toLocaleString("es-AR")}
+        </div>
       ),
     },
     {
@@ -99,19 +145,10 @@ export function getContentColumns({
               <AvatarImage src={assignee.avatar_url ?? undefined} alt={assignee.full_name} />
               <AvatarFallback className="text-[10px]">{initials(assignee.full_name)}</AvatarFallback>
             </Avatar>
-            <span className="text-sm">{assignee.full_name}</span>
+            <span className="text-sm whitespace-nowrap">{assignee.full_name}</span>
           </div>
         );
       },
-    },
-    {
-      accessorKey: "vistas",
-      header: () => <div className="text-right">Vistas</div>,
-      cell: ({ row }) => (
-        <div className="text-right text-sm font-medium tabular-nums text-foreground">
-          {row.original.vistas.toLocaleString("es-AR")}
-        </div>
-      ),
     },
   );
 

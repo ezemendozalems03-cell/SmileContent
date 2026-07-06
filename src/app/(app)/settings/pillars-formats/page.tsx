@@ -4,14 +4,21 @@ import { PillarsFormatsManager } from "@/components/settings/pillars-formats-man
 export default async function GlobalPillarsFormatsPage() {
   const supabase = await createClient();
 
-  const [{ data: pillars }, { data: subpillars }, { data: formats }, { data: subFormats }, { data: storyTypes }] =
-    await Promise.all([
-      supabase.from("pillars").select("*").is("client_id", null).order("sort_order"),
-      supabase.from("subpillars").select("*").order("sort_order"),
-      supabase.from("formats").select("*").is("client_id", null).order("sort_order"),
-      supabase.from("sub_formats").select("*").order("sort_order"),
-      supabase.from("story_types").select("*").is("client_id", null).order("sort_order"),
-    ]);
+  const [
+    { data: pillars },
+    { data: subpillars },
+    { data: formats },
+    { data: subFormats },
+    { data: storyTypes },
+    { data: objectives },
+  ] = await Promise.all([
+    supabase.from("pillars").select("*").is("client_id", null).order("sort_order"),
+    supabase.from("subpillars").select("*").order("sort_order"),
+    supabase.from("formats").select("*").is("client_id", null).order("sort_order"),
+    supabase.from("sub_formats").select("*").order("sort_order"),
+    supabase.from("story_types").select("*").is("client_id", null).order("sort_order"),
+    supabase.from("content_objectives").select("*").is("client_id", null).order("sort_order"),
+  ]);
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
@@ -29,6 +36,7 @@ export default async function GlobalPillarsFormatsPage() {
         formats={formats ?? []}
         subFormats={subFormats ?? []}
         storyTypes={storyTypes ?? []}
+        objectives={objectives ?? []}
       />
     </div>
   );

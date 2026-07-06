@@ -16,3 +16,14 @@ export function getSupabaseEnv() {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   });
 }
+
+// Igual que Supabase: validacion lazy, solo cuando se intenta generar con IA.
+const anthropicEnvSchema = z.object({
+  ANTHROPIC_API_KEY: z.string().min(1, "Falta ANTHROPIC_API_KEY en .env.local"),
+});
+
+export function getAnthropicEnv() {
+  return anthropicEnvSchema.parse({
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+  });
+}

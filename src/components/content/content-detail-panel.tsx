@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Sparkles, Trash2 } from "lucide-react";
+import { approveContentAsExample } from "@/lib/actions/brand-memory";
 import {
   Select,
   SelectContent,
@@ -73,6 +74,15 @@ export function ContentDetailPanel({
     );
     if (result?.error) toast.error(result.error);
     await invalidate();
+  }
+
+  async function handleApproveAsExample() {
+    const result = await approveContentAsExample(contentItemId);
+    if (result?.error) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("Aprobado: la IA lo usará como referencia de estilo para esta marca.");
   }
 
   async function handleDelete() {
@@ -158,6 +168,17 @@ export function ContentDetailPanel({
         {item.client ? (
           <span className="ml-auto text-xs text-muted-foreground">{item.client.name}</span>
         ) : null}
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleApproveAsExample}
+          className={item.client ? undefined : "ml-auto"}
+          title="Guardar como ejemplo de estilo para la IA de esta marca"
+        >
+          <Sparkles className="size-3.5" />
+          Aprobar contenido
+        </Button>
 
         {can(profile?.role, "deleteContent") ? (
           <Button variant="ghost" size="icon-sm" onClick={handleDelete} disabled={deleting}>

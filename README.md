@@ -25,7 +25,8 @@ Sin un proyecto de Supabase conectado, la app compila y el shell (login, sidebar
 2. Copiá `.env.example` a `.env.local` y completá:
    - `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Project Settings > API).
    - `SUPABASE_SERVICE_ROLE_KEY` (la misma pantalla — nunca la expongas al cliente).
-3. Corré las migraciones de `supabase/migrations/` **en orden** (0001 a 0016) contra tu proyecto:
+   - `ANTHROPIC_API_KEY` (platform.claude.com > API Keys) para el asistente IA ("Generar con IA" + Memoria de Marca).
+3. Corré las migraciones de `supabase/migrations/` **en orden** (0001 a 0023) contra tu proyecto:
    - Con la Supabase CLI: `supabase link --project-ref <ref>` y luego `supabase db push`.
    - O pegando cada archivo, en orden, en el SQL Editor del dashboard de Supabase.
 4. Creá el bucket de Storage **privado** llamado `content-files` (Storage > New bucket, "Public" desactivado). Las políticas de RLS sobre `storage.objects` ya están en `0013_rls_policies.sql`.

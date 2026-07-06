@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Plus, Upload, LayoutGrid, Rows3, CalendarDays } from "lucide-react";
+import { Plus, Upload, LayoutGrid, Rows3, CalendarDays, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { GenerateContentDialog } from "@/components/ai/generate-content-dialog";
 import { ContentFiltersBar } from "@/components/content/content-filters-bar";
 import { ContentTable } from "@/components/content/content-table";
 import { KanbanBoard } from "@/components/content/kanban/kanban-board";
@@ -39,6 +40,7 @@ export function ContentWorkspace({
   const searchParams = useSearchParams();
   const [creating, setCreating] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
 
   const rawView = searchParams.get("view");
   const view: View = forcedView ?? (rawView === "board" ? "board" : rawView === "calendar" ? "calendar" : "table");
@@ -109,6 +111,10 @@ export function ContentWorkspace({
               ))}
             </div>
           ) : null}
+          <Button size="sm" variant="outline" onClick={() => setAiOpen(true)}>
+            <Sparkles className="size-4" />
+            Generar con IA
+          </Button>
           <Button size="sm" variant="outline" onClick={() => setImportOpen(true)}>
             <Upload className="size-4" />
             Importar CSV
@@ -138,6 +144,13 @@ export function ContentWorkspace({
       </div>
 
       <ImportCsvDialog open={importOpen} onOpenChange={setImportOpen} defaultClientId={clientId} />
+      {aiOpen && (
+        <GenerateContentDialog
+          open={aiOpen}
+          onOpenChange={setAiOpen}
+          defaultClientId={clientId ?? searchParams.get("client") ?? undefined}
+        />
+      )}
     </div>
   );
 }

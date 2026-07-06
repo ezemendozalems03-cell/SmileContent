@@ -51,6 +51,10 @@ export function ContentDetailForm({ item }: { item: ContentItemWithRelations }) 
 
   const subFormatOptions = (taxonomy?.subFormats ?? []).filter((sf) => sf.format_id === formatoId);
   const subpillarOptions = (taxonomy?.subpillars ?? []).filter((sp) => sp.pillar_id === pilarId);
+  const objetivoOptions = (taxonomy?.objectives ?? []).filter((o) => o.is_active).map((o) => o.name);
+  if (item.objetivo && !objetivoOptions.some((o) => o.toLowerCase() === item.objetivo!.toLowerCase())) {
+    objetivoOptions.push(item.objetivo);
+  }
 
   return (
     <form action={formAction} className="flex h-full flex-col">
@@ -160,7 +164,7 @@ export function ContentDetailForm({ item }: { item: ContentItemWithRelations }) 
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Tipo de contenido</Label>
+                <Label>Tipo base</Label>
                 <Select items={CONTENT_KIND_LABELS} name="tipo_contenido" defaultValue={item.tipo_contenido}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -175,8 +179,24 @@ export function ContentDetailForm({ item }: { item: ContentItemWithRelations }) 
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="objetivo">Objetivo</Label>
-                <Input id="objetivo" name="objetivo" defaultValue={item.objetivo ?? ""} />
+                <Label>Tipo de contenido (objetivo)</Label>
+                <Select
+                  items={{ [NONE]: "Sin tipo", ...Object.fromEntries(objetivoOptions.map((o) => [o, o])) }}
+                  name="objetivo"
+                  defaultValue={item.objetivo ?? NONE}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sin tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NONE}>Sin tipo</SelectItem>
+                    {objetivoOptions.map((o) => (
+                      <SelectItem key={o} value={o}>
+                        {o}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fecha_publicacion">Fecha de publicación</Label>

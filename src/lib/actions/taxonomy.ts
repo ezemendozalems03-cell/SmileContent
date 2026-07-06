@@ -130,3 +130,25 @@ export async function deleteStoryType(clientId: string | null, storyTypeId: stri
   await supabase.from("story_types").delete().eq("id", storyTypeId);
   revalidateTaxonomyPaths(clientId);
 }
+
+// --- Tipos de contenido (objetivo principal) -------------------------------
+export async function createContentObjective(clientId: string | null, _prevState: unknown, formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return { error: "El nombre es obligatorio." };
+
+  const permError = await requireGlobalTaxonomyAccess(clientId);
+  if (permError) return { error: permError };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("content_objectives").insert({ client_id: clientId, name });
+  if (error) return { error: error.code === "23505" ? "Ya existe un tipo con ese nombre." : error.message };
+
+  revalidateTaxonomyPaths(clientId);
+  return { success: true };
+}
+
+export async function deleteContentObjective(clientId: string | null, objectiveId: string) {
+  const supabase = await createClient();
+  await supabase.from("content_objectives").delete().eq("id", objectiveId);
+  revalidateTaxonomyPaths(clientId);
+}

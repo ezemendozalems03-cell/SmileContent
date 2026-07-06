@@ -17,12 +17,14 @@ import {
   deleteSubFormat,
   createStoryType,
   deleteStoryType,
+  createContentObjective,
+  deleteContentObjective,
 } from "@/lib/actions/taxonomy";
 import { usePillarStats } from "@/lib/queries/use-pillar-stats";
-import type { Pillar, Subpillar, Format, SubFormat, StoryType } from "@/lib/types/domain";
+import type { Pillar, Subpillar, Format, SubFormat, StoryType, ContentObjective } from "@/lib/types/domain";
 
 function toParentItems(
-  parents: (Pillar | Format | StoryType)[],
+  parents: (Pillar | Format | StoryType | ContentObjective)[],
   childrenByParent: Map<string, { id: string; name: string }[]>,
 ): ParentItem[] {
   return parents.map((p) => ({ id: p.id, name: p.name, children: childrenByParent.get(p.id) ?? [] }));
@@ -40,6 +42,7 @@ export function PillarsFormatsManager({
   formats,
   subFormats,
   storyTypes,
+  objectives,
 }: {
   clientId: string | null;
   pillars: Pillar[];
@@ -47,6 +50,7 @@ export function PillarsFormatsManager({
   formats: Format[];
   subFormats: SubFormat[];
   storyTypes: StoryType[];
+  objectives: ContentObjective[];
 }) {
   const globalPillars = pillars.filter((p) => p.client_id === null);
   const ownPillars = clientId ? pillars.filter((p) => p.client_id === clientId) : undefined;
@@ -56,6 +60,9 @@ export function PillarsFormatsManager({
 
   const globalStoryTypes = storyTypes.filter((s) => s.client_id === null);
   const ownStoryTypes = clientId ? storyTypes.filter((s) => s.client_id === clientId) : undefined;
+
+  const globalObjectives = objectives.filter((o) => o.client_id === null);
+  const ownObjectives = clientId ? objectives.filter((o) => o.client_id === clientId) : undefined;
 
   const { data: pillarStats } = usePillarStats(clientId ?? undefined);
 
@@ -131,6 +138,18 @@ export function PillarsFormatsManager({
           getCreateChildAction={(formatId) => createSubFormat.bind(null, clientId, formatId)}
           childLabel="Sub-formato"
           addPlaceholder="Nuevo formato…"
+        />
+
+        <Separator />
+
+        <NestedTaxonomySection
+          title="Tipos de contenido"
+          description="El objetivo principal de cada publicación: Educación, Viral, Venta, Autoridad, Comunidad…"
+          globalItems={toParentItems(globalObjectives, new Map())}
+          ownItems={ownObjectives ? toParentItems(ownObjectives, new Map()) : undefined}
+          createParentAction={createContentObjective.bind(null, clientId)}
+          onDeleteParent={(id) => deleteContentObjective(clientId, id)}
+          addPlaceholder="Nuevo tipo de contenido…"
         />
 
         <Separator />

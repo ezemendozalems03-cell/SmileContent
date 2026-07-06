@@ -45,6 +45,24 @@ export type NotificationType =
   | "approval_resolved";
 export type StoryStatus = "idea" | "diseno" | "lista" | "programada" | "publicada" | "archivada";
 export type IdeaStatus = "idea" | "en_desarrollo" | "aprobado" | "calendarizado" | "publicado";
+export type AiContentType =
+  | "carrusel"
+  | "reel"
+  | "historia"
+  | "post"
+  | "tiktok"
+  | "email"
+  | "campana";
+export type AiGenerationStatus = "ok" | "error";
+export type BrandProductKind = "producto" | "servicio";
+export type BrandLearningCategory = "estilo" | "lenguaje" | "rendimiento" | "otro";
+export type IdeaDificultad = "baja" | "media" | "alta";
+export type IdeaOrigen = "manual" | "ia";
+export type StrategyRuleCategoria = "secuencia" | "frecuencia" | "contenido" | "otro";
+export type RecommendationTipo = "balance" | "repeticion" | "frecuencia" | "oportunidad" | "otro";
+export type RecommendationSeveridad = "info" | "media" | "alta";
+export type RecommendationEstado = "nueva" | "aplicada" | "descartada";
+export type RecommendationOrigen = "ia" | "sistema";
 
 export interface Database {
   public: {
@@ -215,6 +233,25 @@ export interface Database {
           is_active?: boolean;
         };
         Update: Partial<Database["public"]["Tables"]["sub_formats"]["Insert"]>;
+        Relationships: [];
+      };
+      content_objectives: {
+        Row: {
+          id: string;
+          client_id: string | null;
+          name: string;
+          sort_order: number;
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id?: string | null;
+          name: string;
+          sort_order?: number;
+          is_active?: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["content_objectives"]["Insert"]>;
         Relationships: [];
       };
       story_types: {
@@ -527,6 +564,11 @@ export interface Database {
           fecha_sugerida: string | null;
           created_by: string | null;
           promoted_content_item_id: string | null;
+          objetivo: string | null;
+          dificultad: IdeaDificultad | null;
+          tiempo_estimado: string | null;
+          origen: IdeaOrigen;
+          campaign_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -551,6 +593,11 @@ export interface Database {
           fecha_sugerida?: string | null;
           created_by?: string | null;
           promoted_content_item_id?: string | null;
+          objetivo?: string | null;
+          dificultad?: IdeaDificultad | null;
+          tiempo_estimado?: string | null;
+          origen?: IdeaOrigen;
+          campaign_id?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["ideas"]["Insert"]>;
         Relationships: [];
@@ -662,6 +709,440 @@ export interface Database {
           size_bytes?: number | null;
         };
         Update: Partial<Database["public"]["Tables"]["brand_assets"]["Insert"]>;
+        Relationships: [];
+      };
+      brand_memory: {
+        Row: {
+          id: string;
+          client_id: string;
+          nombre_comercial: string | null;
+          rubro: string | null;
+          descripcion: string | null;
+          historia: string | null;
+          mision: string | null;
+          vision: string | null;
+          valores: string[];
+          publico_edad: string | null;
+          publico_pais: string | null;
+          publico_ciudad: string | null;
+          publico_nivel_socioeconomico: string | null;
+          publico_problemas: string[];
+          publico_deseos: string[];
+          publico_objeciones: string[];
+          publico_intereses: string[];
+          publico_lenguaje: string | null;
+          red_instagram: string | null;
+          red_facebook: string | null;
+          red_tiktok: string | null;
+          red_sitio_web: string | null;
+          red_whatsapp: string | null;
+          competidores: string[];
+          objetivos_marketing: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          nombre_comercial?: string | null;
+          rubro?: string | null;
+          descripcion?: string | null;
+          historia?: string | null;
+          mision?: string | null;
+          vision?: string | null;
+          valores?: string[];
+          publico_edad?: string | null;
+          publico_pais?: string | null;
+          publico_ciudad?: string | null;
+          publico_nivel_socioeconomico?: string | null;
+          publico_problemas?: string[];
+          publico_deseos?: string[];
+          publico_objeciones?: string[];
+          publico_intereses?: string[];
+          publico_lenguaje?: string | null;
+          red_instagram?: string | null;
+          red_facebook?: string | null;
+          red_tiktok?: string | null;
+          red_sitio_web?: string | null;
+          red_whatsapp?: string | null;
+          competidores?: string[];
+          objetivos_marketing?: string[];
+        };
+        Update: Partial<Database["public"]["Tables"]["brand_memory"]["Insert"]>;
+        Relationships: [];
+      };
+      brand_voice: {
+        Row: {
+          id: string;
+          client_id: string;
+          tono: string | null;
+          personalidad: string | null;
+          nivel_formalidad: string | null;
+          emojis_permitidos: string[];
+          emojis_prohibidos: string[];
+          palabras_permitidas: string[];
+          palabras_prohibidas: string[];
+          frases_tipicas: string[];
+          ctas_habituales: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          tono?: string | null;
+          personalidad?: string | null;
+          nivel_formalidad?: string | null;
+          emojis_permitidos?: string[];
+          emojis_prohibidos?: string[];
+          palabras_permitidas?: string[];
+          palabras_prohibidas?: string[];
+          frases_tipicas?: string[];
+          ctas_habituales?: string[];
+        };
+        Update: Partial<Database["public"]["Tables"]["brand_voice"]["Insert"]>;
+        Relationships: [];
+      };
+      brand_visual_identity: {
+        Row: {
+          id: string;
+          client_id: string;
+          logo_descripcion: string | null;
+          colores: string[];
+          tipografias: string[];
+          estilo_fotografico: string | null;
+          estilo_grafico: string | null;
+          estilo_carruseles: string | null;
+          estilo_historias: string | null;
+          estilo_reels: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          logo_descripcion?: string | null;
+          colores?: string[];
+          tipografias?: string[];
+          estilo_fotografico?: string | null;
+          estilo_grafico?: string | null;
+          estilo_carruseles?: string | null;
+          estilo_historias?: string | null;
+          estilo_reels?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["brand_visual_identity"]["Insert"]>;
+        Relationships: [];
+      };
+      brand_products: {
+        Row: {
+          id: string;
+          client_id: string;
+          kind: BrandProductKind;
+          nombre: string;
+          descripcion: string | null;
+          beneficios: string[];
+          caracteristicas: string[];
+          diferenciales: string[];
+          precio: string | null;
+          promociones: string | null;
+          publico_objetivo: string | null;
+          activo: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          kind?: BrandProductKind;
+          nombre: string;
+          descripcion?: string | null;
+          beneficios?: string[];
+          caracteristicas?: string[];
+          diferenciales?: string[];
+          precio?: string | null;
+          promociones?: string | null;
+          publico_objetivo?: string | null;
+          activo?: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["brand_products"]["Insert"]>;
+        Relationships: [];
+      };
+      brand_learning: {
+        Row: {
+          id: string;
+          client_id: string;
+          contenido: string;
+          categoria: BrandLearningCategory;
+          activo: boolean;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          contenido: string;
+          categoria?: BrandLearningCategory;
+          activo?: boolean;
+          created_by?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["brand_learning"]["Insert"]>;
+        Relationships: [];
+      };
+      brand_examples: {
+        Row: {
+          id: string;
+          client_id: string;
+          content_item_id: string | null;
+          titulo: string;
+          tipo_contenido: ContentKind;
+          hook: string | null;
+          guion: string | null;
+          copy: string | null;
+          cta: string | null;
+          hashtags: string[];
+          notas: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          content_item_id?: string | null;
+          titulo: string;
+          tipo_contenido?: ContentKind;
+          hook?: string | null;
+          guion?: string | null;
+          copy?: string | null;
+          cta?: string | null;
+          hashtags?: string[];
+          notas?: string | null;
+          created_by?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["brand_examples"]["Insert"]>;
+        Relationships: [];
+      };
+      ai_generations: {
+        Row: {
+          id: string;
+          client_id: string;
+          content_item_id: string | null;
+          requested_by: string | null;
+          tipo_contenido: AiContentType;
+          tema: string;
+          objetivo: string | null;
+          producto_id: string | null;
+          fecha_publicacion: string | null;
+          seccion_regenerada: string | null;
+          modelo: string;
+          resultado: Record<string, unknown> | null;
+          status: AiGenerationStatus;
+          error: string | null;
+          input_tokens: number;
+          output_tokens: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          content_item_id?: string | null;
+          requested_by?: string | null;
+          tipo_contenido: AiContentType;
+          tema: string;
+          objetivo?: string | null;
+          producto_id?: string | null;
+          fecha_publicacion?: string | null;
+          seccion_regenerada?: string | null;
+          modelo: string;
+          resultado?: Record<string, unknown> | null;
+          status?: AiGenerationStatus;
+          error?: string | null;
+          input_tokens?: number;
+          output_tokens?: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["ai_generations"]["Insert"]>;
+        Relationships: [];
+      };
+      strategy_settings: {
+        Row: {
+          id: string;
+          client_id: string;
+          posts_semanales: number;
+          reels_semanales: number;
+          historias_semanales: number;
+          notas: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          posts_semanales?: number;
+          reels_semanales?: number;
+          historias_semanales?: number;
+          notas?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["strategy_settings"]["Insert"]>;
+        Relationships: [];
+      };
+      strategy_rules: {
+        Row: {
+          id: string;
+          client_id: string;
+          regla: string;
+          categoria: StrategyRuleCategoria;
+          activo: boolean;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          regla: string;
+          categoria?: StrategyRuleCategoria;
+          activo?: boolean;
+          created_by?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["strategy_rules"]["Insert"]>;
+        Relationships: [];
+      };
+      client_objectives: {
+        Row: {
+          id: string;
+          client_id: string;
+          objetivo: string;
+          prioridad: number;
+          activo: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          objetivo: string;
+          prioridad?: number;
+          activo?: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["client_objectives"]["Insert"]>;
+        Relationships: [];
+      };
+      strategy_reports: {
+        Row: {
+          id: string;
+          client_id: string;
+          resumen: string | null;
+          resultado: Record<string, unknown>;
+          modelo: string;
+          input_tokens: number;
+          output_tokens: number;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          resumen?: string | null;
+          resultado: Record<string, unknown>;
+          modelo: string;
+          input_tokens?: number;
+          output_tokens?: number;
+          created_by?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["strategy_reports"]["Insert"]>;
+        Relationships: [];
+      };
+      content_recommendations: {
+        Row: {
+          id: string;
+          client_id: string;
+          report_id: string | null;
+          tipo: RecommendationTipo;
+          titulo: string;
+          detalle: string | null;
+          severidad: RecommendationSeveridad;
+          estado: RecommendationEstado;
+          origen: RecommendationOrigen;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          report_id?: string | null;
+          tipo?: RecommendationTipo;
+          titulo: string;
+          detalle?: string | null;
+          severidad?: RecommendationSeveridad;
+          estado?: RecommendationEstado;
+          origen?: RecommendationOrigen;
+        };
+        Update: Partial<Database["public"]["Tables"]["content_recommendations"]["Insert"]>;
+        Relationships: [];
+      };
+      monthly_plans: {
+        Row: {
+          id: string;
+          client_id: string;
+          mes: string;
+          resumen: string | null;
+          cantidad_contenidos: number;
+          resultado: Record<string, unknown>;
+          modelo: string;
+          input_tokens: number;
+          output_tokens: number;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          mes: string;
+          resumen?: string | null;
+          cantidad_contenidos?: number;
+          resultado: Record<string, unknown>;
+          modelo: string;
+          input_tokens?: number;
+          output_tokens?: number;
+          created_by?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["monthly_plans"]["Insert"]>;
+        Relationships: [];
+      };
+      calendar_templates: {
+        Row: {
+          id: string;
+          client_id: string;
+          nombre: string;
+          slots: Record<string, unknown>[];
+          activo: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          nombre: string;
+          slots?: Record<string, unknown>[];
+          activo?: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["calendar_templates"]["Insert"]>;
+        Relationships: [];
+      };
+      campaign_contents: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          idea_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          campaign_id: string;
+          idea_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["campaign_contents"]["Insert"]>;
         Relationships: [];
       };
     };
@@ -786,6 +1267,8 @@ export interface Database {
       notification_type: NotificationType;
       story_status: StoryStatus;
       idea_status: IdeaStatus;
+      ai_content_type: AiContentType;
+      ai_generation_status: AiGenerationStatus;
     };
   };
 }

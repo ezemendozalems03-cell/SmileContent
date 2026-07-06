@@ -6,12 +6,14 @@ import { cn } from "@/lib/utils";
 
 const TABS = [
   { segment: "resumen", label: "Resumen" },
+  { segment: "estrategia", label: "Estrategia" },
   { segment: "calendario", label: "Calendario" },
   { segment: "publicaciones", label: "Publicaciones" },
   { segment: "historias", label: "Historias" },
   { segment: "reels", label: "Reels" },
   { segment: "tiktoks", label: "TikToks" },
   { segment: "biblioteca", label: "Biblioteca" },
+  { segment: "memoria", label: "Memoria de Marca" },
   { segment: "metricas", label: "Métricas" },
   { segment: "comentarios", label: "Comentarios" },
   { segment: "configuracion", label: "Configuración" },

@@ -115,6 +115,21 @@ export function IdeaCard({
           {idea.subpilar ? (
             <span className="rounded-full border border-border px-2 py-0.5 text-xs">{idea.subpilar.name}</span>
           ) : null}
+          {idea.dificultad ? (
+            <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
+              Dificultad {idea.dificultad}
+            </span>
+          ) : null}
+          {idea.tiempo_estimado ? (
+            <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
+              {idea.tiempo_estimado}
+            </span>
+          ) : null}
+          {idea.origen === "ia" ? (
+            <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
+              IA
+            </span>
+          ) : null}
         </div>
 
         <div className="flex items-center justify-between gap-2 pt-1">

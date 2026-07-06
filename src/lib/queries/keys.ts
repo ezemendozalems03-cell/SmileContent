@@ -36,6 +36,26 @@ export const queryKeys = {
   brandAssets: {
     list: (clientId: string) => ["brand-assets", "list", clientId] as const,
   },
+  strategy: {
+    all: (clientId: string) => ["strategy", clientId] as const,
+    snapshot: (clientId: string) => ["strategy", clientId, "snapshot"] as const,
+    settings: (clientId: string) => ["strategy", clientId, "settings"] as const,
+    rules: (clientId: string) => ["strategy", clientId, "rules"] as const,
+    objectives: (clientId: string) => ["strategy", clientId, "objectives"] as const,
+    recommendations: (clientId: string) => ["strategy", clientId, "recommendations"] as const,
+    reports: (clientId: string) => ["strategy", clientId, "reports"] as const,
+    plans: (clientId: string) => ["strategy", clientId, "plans"] as const,
+    campaigns: (clientId: string) => ["strategy", clientId, "campaigns"] as const,
+  },
+  brandMemory: {
+    all: (clientId: string) => ["brand-memory", clientId] as const,
+    memory: (clientId: string) => ["brand-memory", clientId, "memory"] as const,
+    voice: (clientId: string) => ["brand-memory", clientId, "voice"] as const,
+    visual: (clientId: string) => ["brand-memory", clientId, "visual"] as const,
+    products: (clientId: string) => ["brand-memory", clientId, "products"] as const,
+    learnings: (clientId: string) => ["brand-memory", clientId, "learnings"] as const,
+    examples: (clientId: string) => ["brand-memory", clientId, "examples"] as const,
+  },
   comments: {
     forContentItem: (contentItemId: string) => ["comments", "content-item", contentItemId] as const,
     forStory: (storyId: string) => ["comments", "story", storyId] as const,

@@ -30,7 +30,7 @@ export function ContentTable({
   const router = useRouter();
   const table = useReactTable({
     data: items,
-    columns: getContentColumns({ showClient }),
+    columns: getContentColumns({ showClient, basePath }),
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -57,7 +57,7 @@ export function ContentTable({
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="w-full">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

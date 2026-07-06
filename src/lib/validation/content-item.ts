@@ -16,6 +16,14 @@ const optionalText = z
   .or(z.literal(""))
   .transform((v) => (v ? v : null));
 
+// Como optionalUuid pero para campos de texto elegidos vía Select ("Sin X" = "__none__").
+const optionalSelectText = z
+  .string()
+  .trim()
+  .optional()
+  .or(z.literal(""))
+  .transform((v) => (v && v !== "__none__" ? v : null));
+
 const optionalUrl = z
   .string()
   .trim()
@@ -32,7 +40,7 @@ export const contentItemDetailsSchema = z.object({
   pilar_id: optionalUuid,
   subpilar_id: optionalUuid,
   tipo_contenido: z.enum(["post", "story", "reel", "tiktok"]),
-  objetivo: optionalText,
+  objetivo: optionalSelectText,
   fecha_publicacion: optionalText,
   hora_sugerida: optionalText,
 });
@@ -74,6 +82,51 @@ export const contentItemMetricsSchema = z.object({
 export const contentItemNotesSchema = z.object({
   observaciones_internas: optionalText,
 });
+
+// Edición inline desde la tabla: cada key es opcional; las ausentes no se tocan.
+// "__none__" (sentinel de los Select "Sin X") siempre se traduce a null.
+const inlineUuid = z.union([
+  z.literal("__none__").transform(() => null),
+  z.uuid(),
+  z.null(),
+]);
+const inlineText = z.union([
+  z.literal("__none__").transform(() => null),
+  z
+    .string()
+    .trim()
+    .transform((v) => (v ? v : null)),
+  z.null(),
+]);
+
+export const contentItemInlinePatchSchema = z
+  .object({
+    titulo: z.string().trim().min(1, "El titulo es obligatorio."),
+    status: z.enum([
+      "idea",
+      "investigacion",
+      "guion",
+      "diseno",
+      "grabacion",
+      "edicion",
+      "revision_interna",
+      "enviado_al_cliente",
+      "correcciones",
+      "aprobado",
+      "programado",
+      "publicado",
+      "medido",
+      "archivado",
+    ]),
+    priority: z.enum(["baja", "media", "alta", "urgente"]),
+    formato_id: inlineUuid,
+    sub_formato_id: inlineUuid,
+    pilar_id: inlineUuid,
+    subpilar_id: inlineUuid,
+    objetivo: inlineText,
+  })
+  .partial()
+  .strict();
 
 export const contentItemFormSchema = contentItemDetailsSchema
   .merge(contentItemCopySchema)
