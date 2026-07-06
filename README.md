@@ -25,8 +25,8 @@ Sin un proyecto de Supabase conectado, la app compila y el shell (login, sidebar
 2. Copiá `.env.example` a `.env.local` y completá:
    - `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Project Settings > API).
    - `SUPABASE_SERVICE_ROLE_KEY` (la misma pantalla — nunca la expongas al cliente).
-   - `ANTHROPIC_API_KEY` (platform.claude.com > API Keys) para el asistente IA ("Generar con IA" + Memoria de Marca).
-3. Corré las migraciones de `supabase/migrations/` **en orden** (0001 a 0023) contra tu proyecto:
+   - `AI_PROVIDER` + la API key del proveedor elegido, para el asistente IA ("Generar con IA", Memoria de Marca y Motor Estratégico) — ver "Proveedor de IA" más abajo.
+3. Corré las migraciones de `supabase/migrations/` **en orden** (0001 a 0025) contra tu proyecto:
    - Con la Supabase CLI: `supabase link --project-ref <ref>` y luego `supabase db push`.
    - O pegando cada archivo, en orden, en el SQL Editor del dashboard de Supabase.
 4. Creá el bucket de Storage **privado** llamado `content-files` (Storage > New bucket, "Public" desactivado). Las políticas de RLS sobre `storage.objects` ya están en `0013_rls_policies.sql`.
@@ -39,6 +39,29 @@ Sin un proyecto de Supabase conectado, la app compila y el shell (login, sidebar
    ```powershell
    ./scripts/gen-types.ps1 -ProjectId <tu-project-ref>
    ```
+
+## Proveedor de IA
+
+Toda la capa de IA (asistente "Generar con IA", Memoria de Marca, Motor Estratégico) pasa por un
+único **AI Provider Service** (`src/lib/ai/provider.ts`) — ningún action ni componente llama a un
+SDK de proveedor directamente. Cambiar de proveedor es cambiar variables de entorno, nada de código:
+
+```
+AI_PROVIDER=anthropic   # o "gemini" u "openai"
+
+ANTHROPIC_API_KEY=...
+# ANTHROPIC_MODEL=claude-opus-4-8   (opcional, ese es el default)
+
+GEMINI_API_KEY=...
+# GEMINI_MODEL=gemini-3-pro-preview
+
+OPENAI_API_KEY=...
+# OPENAI_MODEL=gpt-5.1
+```
+
+Solo hace falta la API key del proveedor activo. Para agregar un cuarto proveedor: implementar la
+interfaz `AiProvider` (`src/lib/ai/provider-types.ts`) en `src/lib/ai/providers/`, sumarlo al
+`switch` de `provider.ts` y a `AI_PROVIDERS` en `src/lib/env.ts`.
 
 ## Estructura del proyecto
 

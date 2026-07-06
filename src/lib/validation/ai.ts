@@ -16,6 +16,14 @@ const optionalText = z
   .or(z.literal(""))
   .transform((v) => (v ? v : null));
 
+// Como optionalUuid pero para un valor de texto elegido vía Select ("Sin X" = "__none__").
+const optionalSelectText = z
+  .string()
+  .trim()
+  .optional()
+  .or(z.literal(""))
+  .transform((v) => (v && v !== "__none__" ? v : null));
+
 export const aiGenerateSchema = z.object({
   clientId: z.string().uuid("Cliente inválido."),
   tema: z.string().trim().min(3, "Describí el tema a generar."),
@@ -23,6 +31,14 @@ export const aiGenerateSchema = z.object({
   objetivo: optionalText,
   productoId: optionalUuid,
   fechaPublicacion: optionalText,
+  // Clasificación con la MISMA taxonomía que el resto del pipeline (pilar,
+  // formato, tipo de contenido), para que lo generado quede correctamente
+  // etiquetado al guardarse como content_item — ver saveAiGenerationAsContent.
+  pilarId: optionalUuid,
+  subpilarId: optionalUuid,
+  formatoId: optionalUuid,
+  subFormatoId: optionalUuid,
+  contentObjetivo: optionalSelectText,
 });
 
 export const aiRegenerateSectionSchema = z.object({

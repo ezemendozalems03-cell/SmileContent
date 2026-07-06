@@ -65,13 +65,28 @@ export function buildGenerationPrompt(params: {
   objetivo?: string | null;
   productoNombre?: string | null;
   fechaPublicacion?: string | null;
+  /** Clasificacion elegida en el dialogo (misma taxonomia que el calendario). */
+  pilarNombre?: string | null;
+  subpilarNombre?: string | null;
+  formatoNombre?: string | null;
+  subFormatoNombre?: string | null;
+  contentObjetivo?: string | null;
 }): string {
   let prompt = `# Pedido de contenido\n\n${TYPE_INSTRUCTIONS[params.tipo]}\n\n`;
   prompt += `Tema: ${params.tema}\n`;
-  if (params.objetivo) prompt += `Objetivo: ${params.objetivo}\n`;
+  if (params.objetivo) prompt += `Objetivo de marketing: ${params.objetivo}\n`;
   if (params.productoNombre) prompt += `Producto/servicio a destacar: ${params.productoNombre}\n`;
   if (params.fechaPublicacion) {
     prompt += `Fecha de publicacion prevista: ${params.fechaPublicacion} (tenla en cuenta solo si el tema es estacional).\n`;
+  }
+  if (params.pilarNombre) {
+    prompt += `Pilar de contenido: ${params.pilarNombre}${params.subpilarNombre ? ` (subpilar: ${params.subpilarNombre})` : ""}\n`;
+  }
+  if (params.formatoNombre) {
+    prompt += `Formato: ${params.formatoNombre}${params.subFormatoNombre ? ` (sub-formato: ${params.subFormatoNombre})` : ""}\n`;
+  }
+  if (params.contentObjetivo) {
+    prompt += `Tipo de contenido (clasificacion): ${params.contentObjetivo}\n`;
   }
   return prompt;
 }

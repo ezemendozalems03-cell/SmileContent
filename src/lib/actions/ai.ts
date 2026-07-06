@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { buildBrandContext } from "@/lib/ai/brand-context";
-import { AI_MODEL, generateStructured } from "@/lib/ai/claude";
+import { currentAiModel, generateStructured } from "@/lib/ai/provider";
 import { STATIC_SYSTEM, buildGenerationPrompt, buildSectionPrompt } from "@/lib/ai/prompts";
 import {
   aiResultSchemas,
@@ -31,6 +31,33 @@ function errorMessage(e: unknown): string {
   return "Error inesperado generando el contenido.";
 }
 
+/** Nombres legibles de la taxonomía elegida, para que el prompt la tenga en cuenta. */
+async function resolveTaxonomyNames(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  ids: { pilarId: string | null; subpilarId: string | null; formatoId: string | null; subFormatoId: string | null },
+) {
+  const [pilar, subpilar, formato, subFormato] = await Promise.all([
+    ids.pilarId
+      ? supabase.from("pillars").select("name").eq("id", ids.pilarId).maybeSingle()
+      : Promise.resolve({ data: null }),
+    ids.subpilarId
+      ? supabase.from("subpillars").select("name").eq("id", ids.subpilarId).maybeSingle()
+      : Promise.resolve({ data: null }),
+    ids.formatoId
+      ? supabase.from("formats").select("name").eq("id", ids.formatoId).maybeSingle()
+      : Promise.resolve({ data: null }),
+    ids.subFormatoId
+      ? supabase.from("sub_formats").select("name").eq("id", ids.subFormatoId).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+  return {
+    pilarNombre: pilar.data?.name ?? null,
+    subpilarNombre: subpilar.data?.name ?? null,
+    formatoNombre: formato.data?.name ?? null,
+    subFormatoNombre: subFormato.data?.name ?? null,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Generación completa
 // ---------------------------------------------------------------------------
@@ -55,12 +82,28 @@ export async function generateAiContent(input: Record<string, unknown>): Promise
       context.products.find((p) => p.id === params.productoId)?.nombre ?? null;
   }
 
+  const taxonomyIds = {
+    pilarId: params.pilarId,
+    subpilarId: params.subpilarId,
+    formatoId: params.formatoId,
+    subFormatoId: params.subFormatoId,
+  };
+  const taxonomyNames = await resolveTaxonomyNames(supabase, taxonomyIds);
+  const taxonomyColumns = {
+    pilar_id: params.pilarId,
+    subpilar_id: params.subpilarId,
+    formato_id: params.formatoId,
+    sub_formato_id: params.subFormatoId,
+  };
+
   const userPrompt = buildGenerationPrompt({
     tipo: params.tipoContenido,
     tema: params.tema,
     objetivo: params.objetivo,
     productoNombre,
     fechaPublicacion: params.fechaPublicacion,
+    contentObjetivo: params.contentObjetivo,
+    ...taxonomyNames,
   });
 
   try {
@@ -81,6 +124,8 @@ export async function generateAiContent(input: Record<string, unknown>): Promise
         objetivo: params.objetivo,
         producto_id: params.productoId,
         fecha_publicacion: params.fechaPublicacion,
+        ...taxonomyColumns,
+        content_objetivo: params.contentObjetivo,
         modelo: generation.model,
         resultado: generation.data as unknown as Record<string, unknown>,
         status: "ok",
@@ -102,7 +147,9 @@ export async function generateAiContent(input: Record<string, unknown>): Promise
       objetivo: params.objetivo,
       producto_id: params.productoId,
       fecha_publicacion: params.fechaPublicacion,
-      modelo: AI_MODEL,
+      ...taxonomyColumns,
+      content_objetivo: params.contentObjetivo,
+      modelo: currentAiModel(),
       status: "error",
       error: errorMessage(e),
     });
@@ -174,6 +221,11 @@ export async function regenerateAiSection(
         objetivo: prev.objetivo,
         producto_id: prev.producto_id,
         fecha_publicacion: prev.fecha_publicacion,
+        pilar_id: prev.pilar_id,
+        subpilar_id: prev.subpilar_id,
+        formato_id: prev.formato_id,
+        sub_formato_id: prev.sub_formato_id,
+        content_objetivo: prev.content_objetivo,
         seccion_regenerada: seccion,
         modelo: generation.model,
         resultado: merged as unknown as Record<string, unknown>,
@@ -272,6 +324,7 @@ export async function saveAiGenerationAsContent(
 
   const observaciones = [
     `Generado con IA (${gen.tipo_contenido}). Tema: ${gen.tema}`,
+    gen.objetivo ? `Objetivo de marketing: ${gen.objetivo}` : null,
     r.notas_disenador ? `Notas para el diseñador: ${r.notas_disenador}` : null,
   ]
     .filter(Boolean)
@@ -284,7 +337,13 @@ export async function saveAiGenerationAsContent(
       titulo: r.titulo_interno || gen.tema,
       descripcion: gen.objetivo,
       tipo_contenido: KIND_BY_AI_TYPE[gen.tipo_contenido],
-      objetivo: gen.objetivo,
+      // objetivo = "Tipo de contenido" del pipeline (Educación/Viral/Venta...),
+      // NO el objetivo de marketing en texto libre (ese va a observaciones).
+      objetivo: gen.content_objetivo,
+      pilar_id: gen.pilar_id,
+      subpilar_id: gen.subpilar_id,
+      formato_id: gen.formato_id,
+      sub_formato_id: gen.sub_formato_id,
       // Ya trae copy y guion completos: entra al pipeline en "guion", no "idea".
       status: "guion",
       created_by: profile?.id ?? null,

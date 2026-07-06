@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentProfile } from "@/components/layout/current-profile-provider";
+import { ClientSwitcher } from "@/components/layout/client-switcher";
 import { can } from "@/lib/auth/roles";
 
 const NAV_ITEMS = [
@@ -67,6 +68,8 @@ export function Sidebar() {
         </div>
         <span className="text-sm font-semibold tracking-tight">Content OS</span>
       </div>
+
+      <ClientSwitcher />
 
       <nav className="flex-1 space-y-0.5 px-3 py-2">
         {NAV_ITEMS.map((item) => (

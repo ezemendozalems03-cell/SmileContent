@@ -186,7 +186,13 @@ export const AI_CONTENT_TYPES: { value: AiContentType; label: string }[] = [
   { value: "campana", label: "Campaña" },
 ];
 
-/** JSON Schema (draft 2020-12) listo para output_config.format de la API. */
-export function toClaudeJsonSchema(schema: z.ZodType): Record<string, unknown> {
+/**
+ * JSON Schema (draft 2020-12) listo para el modo de salida estructurada de
+ * cualquier proveedor (Anthropic output_config.format, Gemini
+ * responseJsonSchema, OpenAI text.format json_schema). Los tres exigen el
+ * mismo subconjunto estricto, por eso los esquemas de arriba ya son
+ * z.strictObject + null-unions sin optionals.
+ */
+export function toJsonSchema(schema: z.ZodType): Record<string, unknown> {
   return z.toJSONSchema(schema, { target: "draft-2020-12" }) as Record<string, unknown>;
 }

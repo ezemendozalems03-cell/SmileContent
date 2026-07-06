@@ -14,6 +14,7 @@ import {
 } from "@/lib/ai/schemas";
 import { useClientsList } from "@/lib/queries/use-clients";
 import { useBrandProducts } from "@/lib/queries/use-brand-memory";
+import { useTaxonomy } from "@/lib/queries/use-taxonomy";
 import { queryKeys } from "@/lib/queries/keys";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -50,9 +51,33 @@ type FormState = {
   objetivo: string;
   productoId: string;
   fechaPublicacion: string;
+  pilarId: string;
+  subpilarId: string;
+  formatoId: string;
+  subFormatoId: string;
+  contentObjetivo: string;
 };
 
 const TIPO_ITEMS = Object.fromEntries(AI_CONTENT_TYPES.map((t) => [t.value, t.label]));
+
+/** Nombres de `formats` candidatos a coincidir con cada tipo de generación, en orden de preferencia. */
+const FORMATO_GUESS: Record<AiContentType, string[]> = {
+  carrusel: ["carrusel"],
+  reel: ["reel"],
+  historia: ["historia"],
+  post: ["post", "post estático"],
+  tiktok: ["tiktok"],
+  email: [],
+  campana: [],
+};
+
+function guessFormatoId(formats: { id: string; name: string }[], tipo: AiContentType): string | null {
+  for (const candidate of FORMATO_GUESS[tipo]) {
+    const match = formats.find((f) => f.name.trim().toLowerCase() === candidate);
+    if (match) return match.id;
+  }
+  return null;
+}
 
 // ---------------------------------------------------------------------------
 // Editores de secciones del resultado
@@ -362,6 +387,11 @@ export function GenerateContentDialog({
     objetivo: "",
     productoId: NONE,
     fechaPublicacion: "",
+    pilarId: NONE,
+    subpilarId: NONE,
+    formatoId: NONE,
+    subFormatoId: NONE,
+    contentObjetivo: NONE,
   });
   const [generating, setGenerating] = useState(false);
   const [regeneratingSection, setRegeneratingSection] = useState<AiSection | null>(null);
@@ -371,10 +401,24 @@ export function GenerateContentDialog({
   const [savePending, startSaveTransition] = useTransition();
 
   const { data: products } = useBrandProducts(form.clientId);
+  const { data: taxonomy } = useTaxonomy(form.clientId || undefined);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
+
+  // Sugiere el Formato de la taxonomía apenas se conoce el cliente o cambia el
+  // tipo de generación, sin pisar una elección manual posterior (misma clave).
+  const [autoFormatoKey, setAutoFormatoKey] = useState("");
+  const formatoKey = `${form.clientId}:${form.tipoContenido}`;
+  if (taxonomy && formatoKey !== autoFormatoKey) {
+    setAutoFormatoKey(formatoKey);
+    const guess = guessFormatoId(taxonomy.formats, form.tipoContenido);
+    if (guess) setForm((prev) => ({ ...prev, formatoId: guess, subFormatoId: NONE }));
+  }
+
+  const subpilarOptions = (taxonomy?.subpillars ?? []).filter((sp) => sp.pillar_id === form.pilarId);
+  const subFormatoOptions = (taxonomy?.subFormats ?? []).filter((sf) => sf.format_id === form.formatoId);
 
   function updateResult(patch: Partial<AiResult>) {
     setResult((prev) => (prev ? { ...prev, ...patch } : prev));
@@ -390,6 +434,11 @@ export function GenerateContentDialog({
         objetivo: form.objetivo,
         productoId: form.productoId,
         fechaPublicacion: form.fechaPublicacion,
+        pilarId: form.pilarId,
+        subpilarId: form.subpilarId,
+        formatoId: form.formatoId,
+        subFormatoId: form.subFormatoId,
+        contentObjetivo: form.contentObjetivo,
       });
       if ("error" in response) {
         toast.error(response.error);
@@ -517,14 +566,14 @@ export function GenerateContentDialog({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Tipo de contenido *</Label>
+                <Label>Formato de generación *</Label>
                 <Select
                   items={TIPO_ITEMS}
                   value={form.tipoContenido}
                   onValueChange={(v) => set("tipoContenido", (v as AiContentType) ?? "post")}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Tipo" />
+                    <SelectValue placeholder="Formato" />
                   </SelectTrigger>
                   <SelectContent>
                     {AI_CONTENT_TYPES.map((t) => (
@@ -536,7 +585,7 @@ export function GenerateContentDialog({
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Objetivo</Label>
+                <Label>Objetivo de marketing</Label>
                 <Input
                   value={form.objetivo}
                   onChange={(e) => set("objetivo", e.target.value)}
@@ -578,6 +627,142 @@ export function GenerateContentDialog({
                   value={form.fechaPublicacion}
                   onChange={(e) => set("fechaPublicacion", e.target.value)}
                 />
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-lg border border-border p-3">
+              <p className="text-xs font-medium text-muted-foreground">
+                Clasificación — igual que el calendario, para que quede prolijo en la tabla.
+              </p>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Pilar</Label>
+                  <Select
+                    items={{
+                      [NONE]: "Sin pilar",
+                      ...Object.fromEntries((taxonomy?.pillars ?? []).map((p) => [p.id, p.name])),
+                    }}
+                    value={form.pilarId}
+                    onValueChange={(v) => {
+                      set("pilarId", v ?? NONE);
+                      set("subpilarId", NONE);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Sin pilar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NONE}>Sin pilar</SelectItem>
+                      {taxonomy?.pillars.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Subpilar</Label>
+                  <Select
+                    items={{
+                      [NONE]: "Sin subpilar",
+                      ...Object.fromEntries(subpilarOptions.map((sp) => [sp.id, sp.name])),
+                    }}
+                    value={form.subpilarId}
+                    onValueChange={(v) => set("subpilarId", v ?? NONE)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Sin subpilar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NONE}>Sin subpilar</SelectItem>
+                      {subpilarOptions.map((sp) => (
+                        <SelectItem key={sp.id} value={sp.id}>
+                          {sp.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Formato (taxonomía)</Label>
+                  <Select
+                    items={{
+                      [NONE]: "Sin formato",
+                      ...Object.fromEntries((taxonomy?.formats ?? []).map((f) => [f.id, f.name])),
+                    }}
+                    value={form.formatoId}
+                    onValueChange={(v) => {
+                      set("formatoId", v ?? NONE);
+                      set("subFormatoId", NONE);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Sin formato" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NONE}>Sin formato</SelectItem>
+                      {taxonomy?.formats.map((f) => (
+                        <SelectItem key={f.id} value={f.id}>
+                          {f.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Sub-formato</Label>
+                  <Select
+                    items={{
+                      [NONE]: "Sin sub-formato",
+                      ...Object.fromEntries(subFormatoOptions.map((sf) => [sf.id, sf.name])),
+                    }}
+                    value={form.subFormatoId}
+                    onValueChange={(v) => set("subFormatoId", v ?? NONE)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Sin sub-formato" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NONE}>Sin sub-formato</SelectItem>
+                      {subFormatoOptions.map((sf) => (
+                        <SelectItem key={sf.id} value={sf.id}>
+                          {sf.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Tipo de contenido</Label>
+                <Select
+                  items={{
+                    [NONE]: "Sin tipo",
+                    ...Object.fromEntries((taxonomy?.objectives ?? []).filter((o) => o.is_active).map((o) => [o.name, o.name])),
+                  }}
+                  value={form.contentObjetivo}
+                  onValueChange={(v) => set("contentObjetivo", v ?? NONE)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sin tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NONE}>Sin tipo</SelectItem>
+                    {(taxonomy?.objectives ?? [])
+                      .filter((o) => o.is_active)
+                      .map((o) => (
+                        <SelectItem key={o.id} value={o.name}>
+                          {o.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

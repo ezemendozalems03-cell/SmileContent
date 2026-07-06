@@ -18,6 +18,7 @@ import { BrandSectionForm, type BrandFieldDef } from "@/components/brand-memory/
 import { BrandProductsPanel } from "@/components/brand-memory/brand-products-panel";
 import { BrandLearningPanel } from "@/components/brand-memory/brand-learning-panel";
 import { BrandExamplesPanel } from "@/components/brand-memory/brand-examples-panel";
+import { BrandbookImportButton } from "@/components/brand-memory/brandbook-import-button";
 
 const GENERAL_FIELDS: BrandFieldDef[] = [
   { key: "nombre_comercial", label: "Nombre comercial", type: "text" },
@@ -102,15 +103,16 @@ export function BrandMemoryWorkspace({ clientId }: { clientId: string }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Brain className="size-5 text-primary" />
-        <div>
+        <div className="min-w-0 flex-1">
           <h1 className="text-lg font-semibold">Memoria de Marca</h1>
           <p className="text-sm text-muted-foreground">
             Todo lo que la IA sabe de este cliente. Se carga una vez y se usa automáticamente en
             cada generación: nunca más vas a tener que explicar la marca.
           </p>
         </div>
+        <BrandbookImportButton clientId={clientId} onImported={() => invalidate(clientId)} />
       </div>
 
       {loading ? (

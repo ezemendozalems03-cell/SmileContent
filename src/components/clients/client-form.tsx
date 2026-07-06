@@ -23,15 +23,19 @@ export function ClientForm({
   action,
   defaultValues,
   submitLabel = "Crear cliente",
+  withBrandbookUpload = false,
 }: {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
   defaultValues?: Partial<Client>;
   submitLabel?: string;
+  /** Solo en el alta: PDF opcional que la IA lee para cargar la Memoria de Marca. */
+  withBrandbookUpload?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const [name, setName] = useState(defaultValues?.name ?? "");
   const [slug, setSlug] = useState(defaultValues?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(Boolean(defaultValues?.slug));
+  const [brandbookChosen, setBrandbookChosen] = useState(false);
 
   return (
     <form action={formAction} className="space-y-5">
@@ -150,6 +154,36 @@ export function ClientForm({
         <Textarea id="notes" name="notes" rows={3} defaultValue={defaultValues?.notes ?? ""} />
       </div>
 
+      {withBrandbookUpload ? (
+        <div className="space-y-3 rounded-lg border border-border p-3">
+          <div className="space-y-2">
+            <Label htmlFor="brandbook">Brandbook / manual de marca (PDF, opcional)</Label>
+            <Input
+              id="brandbook"
+              name="brandbook"
+              type="file"
+              accept="application/pdf,.pdf"
+              onChange={(e) => setBrandbookChosen(Boolean(e.target.files?.length))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="brandbook_texto">…o pegá acá el texto con la info de la marca</Label>
+            <Textarea
+              id="brandbook_texto"
+              name="brandbook_texto"
+              rows={5}
+              placeholder="Copiá y pegá el brandbook, un doc de onboarding, el brief del cliente…"
+              onChange={(e) => setBrandbookChosen(e.target.value.trim().length > 0)}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            La IA lo lee al crear el cliente y deja cargada toda su Memoria de Marca (tono,
+            público, colores, productos…). PDF máx. 10 MB — puede tardar un minuto. Si cargás
+            ambos, se usa el PDF.
+          </p>
+        </div>
+      ) : null}
+
       {state?.error ? (
         <Alert variant="destructive">
           <AlertDescription>{state.error}</AlertDescription>
@@ -162,7 +196,11 @@ export function ClientForm({
       ) : null}
 
       <Button type="submit" disabled={pending}>
-        {pending ? "Guardando…" : submitLabel}
+        {pending
+          ? brandbookChosen
+            ? "Creando y leyendo el brandbook… (puede tardar un minuto)"
+            : "Guardando…"
+          : submitLabel}
       </Button>
     </form>
   );

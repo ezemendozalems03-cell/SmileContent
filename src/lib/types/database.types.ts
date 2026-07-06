@@ -934,6 +934,11 @@ export interface Database {
           producto_id: string | null;
           fecha_publicacion: string | null;
           seccion_regenerada: string | null;
+          pilar_id: string | null;
+          subpilar_id: string | null;
+          formato_id: string | null;
+          sub_formato_id: string | null;
+          content_objetivo: string | null;
           modelo: string;
           resultado: Record<string, unknown> | null;
           status: AiGenerationStatus;
@@ -953,6 +958,11 @@ export interface Database {
           producto_id?: string | null;
           fecha_publicacion?: string | null;
           seccion_regenerada?: string | null;
+          pilar_id?: string | null;
+          subpilar_id?: string | null;
+          formato_id?: string | null;
+          sub_formato_id?: string | null;
+          content_objetivo?: string | null;
           modelo: string;
           resultado?: Record<string, unknown> | null;
           status?: AiGenerationStatus;

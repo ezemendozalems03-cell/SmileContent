@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { can } from "@/lib/auth/roles";
+import { extractAndSaveBrandbook, readBrandbookFile, readBrandbookText } from "@/lib/ai/brandbook";
 import { clientFormSchema } from "@/lib/validation/client";
 
 function nullIfEmpty(value: string) {
@@ -67,8 +68,32 @@ export async function createClientAction(_prevState: unknown, formData: FormData
   // The creator gets automatic access via client_members.
   await supabase.from("client_members").insert({ client_id: data.id, profile_id: profile!.id });
 
+  // Brandbook opcional (PDF adjunto o texto pegado): la IA lo lee y deja
+  // cargada la Memoria de Marca. Si falla, el cliente ya quedó creado — no se
+  // aborta el alta por esto.
+  let brandbookLoaded = false;
+  const brandbookFile = await readBrandbookFile(formData.get("brandbook"));
+  const brandbookText = readBrandbookText(formData.get("brandbook_texto"));
+  const brandbookSource =
+    brandbookFile && !("error" in brandbookFile)
+      ? brandbookFile
+      : brandbookText && !("error" in brandbookText)
+        ? brandbookText
+        : null;
+  if (brandbookSource) {
+    try {
+      const result = await extractAndSaveBrandbook(supabase, data.id, brandbookSource);
+      brandbookLoaded = !("error" in result);
+    } catch {
+      brandbookLoaded = false;
+    }
+  }
+
   revalidatePath("/clients");
-  redirect(`/clients/${data.id}`);
+  // Con brandbook cargado aterriza en la Memoria de Marca (para revisarla);
+  // sin brandbook, en Configuración: el paso siguiente natural es armar la
+  // taxonomía del cliente (pilares, formatos, tipos de contenido).
+  redirect(brandbookLoaded ? `/clients/${data.id}/memoria` : `/clients/${data.id}/configuracion`);
 }
 
 export async function updateClientAction(clientId: string, _prevState: unknown, formData: FormData) {

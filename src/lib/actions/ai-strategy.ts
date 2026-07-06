@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/session";
-import { generateStructured } from "@/lib/ai/claude";
+import { generateStructured } from "@/lib/ai/provider";
 import {
   STRATEGY_SYSTEM,
   buildAnalyzePrompt,
