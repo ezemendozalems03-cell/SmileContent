@@ -6,6 +6,7 @@ import { can } from "@/lib/auth/roles";
 import { ClientForm } from "@/components/clients/client-form";
 import { PillarsFormatsManager } from "@/components/settings/pillars-formats-manager";
 import { ClientPortalAccess } from "@/components/clients/client-portal-access";
+import { SocialAccountsPanel } from "@/components/publishing/social-accounts-panel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function ClientConfiguracionPage({
@@ -74,6 +75,15 @@ export default async function ClientConfiguracionPage({
           objectives={objectives ?? []}
         />
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Canales conectados</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SocialAccountsPanel clientId={clientId} />
+        </CardContent>
+      </Card>
 
       {can(profile?.role, "manageClients") ? (
         <Card>

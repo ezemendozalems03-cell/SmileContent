@@ -31,6 +31,15 @@ export type ContentStatus =
 
 export type ContentPriority = "baja" | "media" | "alta" | "urgente";
 export type ContentKind = "post" | "story" | "reel" | "tiktok";
+export type PublishStatus =
+  | "draft"
+  | "ready_for_review"
+  | "approved"
+  | "scheduled"
+  | "publishing"
+  | "published"
+  | "failed"
+  | "cancelled";
 export type ClientStatus = "activo" | "pausado" | "finalizado" | "prospecto";
 export type FileKind = "miniatura" | "archivo_editable" | "archivo_final" | "otro";
 export type CommentAuthorType = "internal" | "client";
@@ -308,6 +317,12 @@ export interface Database {
           consultas_generadas: number;
           observaciones_internas: string | null;
           feedback_cliente: string | null;
+          publish_status: PublishStatus | null;
+          scheduled_at: string | null;
+          published_at: string | null;
+          external_provider: string | null;
+          external_post_id: string | null;
+          external_submission_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -346,8 +361,80 @@ export interface Database {
           consultas_generadas?: number;
           observaciones_internas?: string | null;
           feedback_cliente?: string | null;
+          publish_status?: PublishStatus | null;
+          scheduled_at?: string | null;
+          published_at?: string | null;
+          external_provider?: string | null;
+          external_post_id?: string | null;
+          external_submission_id?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["content_items"]["Insert"]>;
+        Relationships: [];
+      };
+      social_accounts: {
+        Row: {
+          id: string;
+          client_id: string | null;
+          provider: string;
+          platform: string;
+          account_id: string;
+          account_name: string | null;
+          username: string | null;
+          avatar_url: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id?: string | null;
+          provider?: string;
+          platform: string;
+          account_id: string;
+          account_name?: string | null;
+          username?: string | null;
+          avatar_url?: string | null;
+          is_active?: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["social_accounts"]["Insert"]>;
+        Relationships: [];
+      };
+      scheduled_posts: {
+        Row: {
+          id: string;
+          content_item_id: string;
+          client_id: string;
+          platform: string;
+          social_account_id: string | null;
+          scheduled_at: string | null;
+          published_at: string | null;
+          status: PublishStatus;
+          external_provider: string;
+          external_post_id: string | null;
+          external_submission_id: string | null;
+          error_message: string | null;
+          payload_json: Record<string, unknown> | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          content_item_id: string;
+          client_id: string;
+          platform: string;
+          social_account_id?: string | null;
+          scheduled_at?: string | null;
+          published_at?: string | null;
+          status?: PublishStatus;
+          external_provider?: string;
+          external_post_id?: string | null;
+          external_submission_id?: string | null;
+          error_message?: string | null;
+          payload_json?: Record<string, unknown> | null;
+          created_by?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["scheduled_posts"]["Insert"]>;
         Relationships: [];
       };
       stories: {

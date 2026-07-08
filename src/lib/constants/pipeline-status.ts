@@ -1,4 +1,4 @@
-import type { ContentStatus, StoryStatus } from "@/lib/types/database.types";
+import type { ContentStatus, PublishStatus, StoryStatus } from "@/lib/types/database.types";
 
 export const CONTENT_STATUS_ORDER: ContentStatus[] = [
   "idea",
@@ -104,6 +104,41 @@ export const FILE_KIND_LABELS = {
   archivo_final: "Archivo final",
   otro: "Otro",
 } as const;
+
+/** Estado de la publicación EXTERNA (Blotato) — independiente del pipeline editorial. */
+export const PUBLISH_STATUS_LABELS: Record<PublishStatus, string> = {
+  draft: "Borrador",
+  ready_for_review: "Para revisar",
+  approved: "Aprobado",
+  scheduled: "Programado",
+  publishing: "Publicando…",
+  published: "Publicado",
+  failed: "Error de publicación",
+  cancelled: "Cancelado",
+};
+
+export const PUBLISH_STATUS_COLORS: Record<PublishStatus, string> = {
+  draft: "bg-slate-500/15 text-slate-300 border-slate-500/30",
+  ready_for_review: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+  approved: "bg-lime-500/15 text-lime-300 border-lime-500/30",
+  scheduled: "bg-sky-500/15 text-sky-300 border-sky-500/30",
+  publishing: "bg-violet-500/15 text-violet-300 border-violet-500/30",
+  published: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+  failed: "bg-red-500/15 text-red-300 border-red-500/30",
+  cancelled: "bg-zinc-500/15 text-zinc-400 border-zinc-500/30",
+};
+
+export const SOCIAL_PLATFORM_LABELS: Record<string, string> = {
+  instagram: "Instagram",
+  facebook: "Facebook",
+  tiktok: "TikTok",
+  youtube: "YouTube",
+  linkedin: "LinkedIn",
+  twitter: "X / Twitter",
+  threads: "Threads",
+  pinterest: "Pinterest",
+  bluesky: "Bluesky",
+};
 
 export const STORY_STATUS_COLORS: Record<string, string> = {
   idea: "bg-slate-500/15 text-slate-300 border-slate-500/30",

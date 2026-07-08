@@ -37,6 +37,8 @@ export type ContentRecommendation = Database["public"]["Tables"]["content_recomm
 export type MonthlyPlan = Database["public"]["Tables"]["monthly_plans"]["Row"];
 export type CalendarTemplate = Database["public"]["Tables"]["calendar_templates"]["Row"];
 export type CampaignContent = Database["public"]["Tables"]["campaign_contents"]["Row"];
+export type SocialAccount = Database["public"]["Tables"]["social_accounts"]["Row"];
+export type ScheduledPost = Database["public"]["Tables"]["scheduled_posts"]["Row"];
 
 /** content_items joined with the human-readable labels the UI actually renders. */
 export type ContentItemWithRelations = ContentItem & {

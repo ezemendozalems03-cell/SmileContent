@@ -64,6 +64,20 @@ export function getGeminiEnv() {
   });
 }
 
+// Blotato (capa externa de publicación en redes) — server-only, jamás llega
+// al frontend. Validación lazy: recién al usar la integración.
+const blotatoEnvSchema = z.object({
+  BLOTATO_API_KEY: z.string().min(1, "Falta BLOTATO_API_KEY en .env.local"),
+  BLOTATO_BASE_URL: z.string().url().default("https://backend.blotato.com/v2"),
+});
+
+export function getBlotatoEnv() {
+  return blotatoEnvSchema.parse({
+    BLOTATO_API_KEY: process.env.BLOTATO_API_KEY,
+    BLOTATO_BASE_URL: process.env.BLOTATO_BASE_URL || undefined,
+  });
+}
+
 const openAiEnvSchema = z.object({
   OPENAI_API_KEY: z.string().min(1, "Falta OPENAI_API_KEY en .env.local (AI_PROVIDER=openai)"),
   OPENAI_MODEL: z.string().min(1).default(DEFAULT_MODELS.openai),

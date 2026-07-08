@@ -26,6 +26,7 @@ Sin un proyecto de Supabase conectado, la app compila y el shell (login, sidebar
    - `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Project Settings > API).
    - `SUPABASE_SERVICE_ROLE_KEY` (la misma pantalla — nunca la expongas al cliente).
    - `AI_PROVIDER` + la API key del proveedor elegido, para el asistente IA ("Generar con IA", Memoria de Marca y Motor Estratégico) — ver "Proveedor de IA" más abajo.
+   - `BLOTATO_API_KEY` (my.blotato.com → Settings → API) para programar y publicar en redes desde Content OS (server-only; las cuentas sociales se conectan por OAuth en Blotato y se sincronizan desde Configuración → Canales conectados).
 3. Corré las migraciones de `supabase/migrations/` **en orden** (0001 a 0025) contra tu proyecto:
    - Con la Supabase CLI: `supabase link --project-ref <ref>` y luego `supabase db push`.
    - O pegando cada archivo, en orden, en el SQL Editor del dashboard de Supabase.

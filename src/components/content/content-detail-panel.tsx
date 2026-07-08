@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Sparkles, Trash2 } from "lucide-react";
+import { CalendarClock, Sparkles, Trash2 } from "lucide-react";
 import { approveContentAsExample } from "@/lib/actions/brand-memory";
+import { SchedulePostDialog } from "@/components/publishing/schedule-post-dialog";
+import { StatusBadge } from "@/components/shared/status-badge";
+import { PUBLISH_STATUS_COLORS, PUBLISH_STATUS_LABELS } from "@/lib/constants/pipeline-status";
 import {
   Select,
   SelectContent,
@@ -45,6 +48,7 @@ export function ContentDetailPanel({
   const { data: item, isLoading, error } = useContentItem(contentItemId);
   const { data: profiles } = useProfiles();
   const [deleting, setDeleting] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
 
   useEffect(() => {
     if (error) toast.error("No se encontró la publicación.");
@@ -165,6 +169,14 @@ export function ContentDetailPanel({
           </SelectContent>
         </Select>
 
+        {item.publish_status ? (
+          <StatusBadge
+            label={PUBLISH_STATUS_LABELS[item.publish_status]}
+            colorClass={PUBLISH_STATUS_COLORS[item.publish_status]}
+            className="text-[10px]"
+          />
+        ) : null}
+
         {item.client ? (
           <span className="ml-auto text-xs text-muted-foreground">{item.client.name}</span>
         ) : null}
@@ -172,8 +184,18 @@ export function ContentDetailPanel({
         <Button
           variant="outline"
           size="sm"
-          onClick={handleApproveAsExample}
+          onClick={() => setScheduleOpen(true)}
           className={item.client ? undefined : "ml-auto"}
+          title="Programar o publicar en redes vía Blotato"
+        >
+          <CalendarClock className="size-3.5" />
+          Programar con Blotato
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleApproveAsExample}
           title="Guardar como ejemplo de estilo para la IA de esta marca"
         >
           <Sparkles className="size-3.5" />
@@ -190,6 +212,8 @@ export function ContentDetailPanel({
       <div className="flex-1 overflow-hidden">
         <ContentDetailForm key={item.id} item={item} />
       </div>
+
+      <SchedulePostDialog open={scheduleOpen} onOpenChange={setScheduleOpen} item={item} />
     </div>
   );
 }

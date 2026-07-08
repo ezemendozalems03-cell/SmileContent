@@ -64,6 +64,11 @@ export const queryKeys = {
     forContentItem: (contentItemId: string) => ["files", "content-item", contentItemId] as const,
     forStory: (storyId: string) => ["files", "story", storyId] as const,
   },
+  publishing: {
+    accounts: (clientId?: string) => ["publishing", "accounts", clientId ?? "all"] as const,
+    forContent: (contentItemId: string) => ["publishing", "content", contentItemId] as const,
+    media: (contentItemId: string) => ["publishing", "media", contentItemId] as const,
+  },
   taxonomy: (clientId?: string) => ["taxonomy", clientId ?? "global"] as const,
   profiles: ["profiles"] as const,
   clients: ["clients"] as const,
